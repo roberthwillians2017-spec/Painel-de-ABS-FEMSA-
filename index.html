@@ -1551,7 +1551,7 @@ document.getElementById('bCarregar').addEventListener('click',async()=>{
     if(m==='AUTH') txt='Chave de API rejeitada ou sem créditos no mês. Verifique sua conta em the-odds-api.com.';
     else if(m.startsWith('422')) txt='A competição não aceita os mercados pedidos. Tente outra competição.';
     else if(/Failed to fetch|NetworkError|Load failed/i.test(m))
-      txt='O navegador bloqueou a requisição. Abra o arquivo servindo por HTTP local: no terminal, dentro da pasta, rode <b>python -m http.server 8000</b> e acesse <b>http://localhost:8000/quantfut.html</b>';
+      , rode <b>python -m http.server 8000</b> e acesse <b>https://quantfut-gateway.onrender.com</b>';
     else if(/429/.test(m)) txt='Limite de requisições atingido. Aguarde ou verifique sua cota mensal.';
     else txt='Falha: '+m;
     st.innerHTML=`<div class="msg er">${txt}</div>`;
