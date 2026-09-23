@@ -1,2090 +1,868 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>QuantFut Auto</title>
-<style>
-:root{
-  --bg:#070c14; --panel:#101a29; --panel2:#152238; --text:#edf3fa; --muted:#8ea0b8;
-  --green:#29d17f; --red:#ff5d6c; --yellow:#f2c94c; --blue:#5da8ff; --border:#1c2b40;
-  --mint:#1fe0a0; --mint-dk:#0b7a57; --ink:#04140e;
-}
-*{box-sizing:border-box;}
-html,body{margin:0;background:var(--bg);color:var(--text);
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;}
-body{padding-bottom:30px;}
-h1{font-size:19px;margin:0 0 10px;} h2{font-size:16px;margin:0 0 8px;}
-h3{font-size:14px;margin:0 0 6px;color:var(--blue);}
-p{margin:5px 0;color:var(--muted);font-size:13px;line-height:1.55;}
-.wrap{max-width:700px;margin:0 auto;padding:12px;}
-button{cursor:pointer;font-family:inherit;}
-input,select{font-family:inherit;width:100%;background:var(--panel2);color:var(--text);
-  border:1px solid var(--border);border-radius:9px;padding:10px;font-size:15px;min-height:46px;}
-input:focus,select:focus{outline:2px solid var(--blue);}
-label{display:block;font-size:12px;color:var(--muted);margin:10px 0 5px;}
-
-.tabbar{position:sticky;top:0;display:flex;background:var(--panel);
-  border-bottom:1px solid var(--border);z-index:50;}
-.tabbtn{flex:1;background:none;border:none;color:var(--muted);padding:10px 4px;
-  font-size:11px;display:flex;flex-direction:column;align-items:center;gap:3px;
-  min-height:56px;border-bottom:3px solid transparent;}
-.tabbtn.active{color:var(--text);border-bottom-color:var(--blue);}
-.tabbtn .ic{font-size:19px;}
-.tabpage{display:none;} .tabpage.active{display:block;}
-
-.card{background:var(--panel);border:1px solid var(--border);border-radius:13px;
-  padding:15px;margin-bottom:12px;}
-.btn{background:var(--blue);color:#04101f;border:none;border-radius:9px;width:100%;
-  padding:13px;font-weight:600;font-size:15px;min-height:48px;}
-.btn.sec{background:var(--panel2);color:var(--text);border:1px solid var(--border);}
-.btn.dan{background:var(--red);color:#1a0508;}
-.btn.sm{padding:8px 12px;min-height:40px;font-size:13px;width:auto;}
-.btn:disabled{opacity:.45;}
-.row{display:flex;gap:8px;flex-wrap:wrap;}
-.row>*{width:auto;}
-
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
-.kpi{background:var(--panel2);border-radius:10px;padding:11px;text-align:center;}
-.kpi .v{font-size:20px;font-weight:700;}
-.kpi .l{font-size:10px;color:var(--muted);margin-top:3px;line-height:1.3;}
-.pos{color:var(--green);} .neg{color:var(--red);} .warn{color:var(--yellow);} .inf{color:var(--blue);}
-
-.linha{display:flex;align-items:center;gap:10px;background:var(--panel2);
-  border-radius:10px;padding:11px;margin-bottom:7px;border-left:4px solid var(--border);}
-.linha.ok{border-left-color:var(--green);}
-.linha.no{border-left-color:var(--red);}
-.linha .nm{flex:1;font-size:14px;font-weight:600;}
-.linha .dt{font-size:11px;color:var(--muted);margin-top:3px;font-weight:400;}
-.linha .od{font-size:15px;font-weight:700;color:var(--blue);}
-.linha .mk{font-size:20px;}
-
-.msg{border-radius:10px;padding:11px;margin:9px 0;font-size:13px;line-height:1.55;}
-.msg.ok{background:rgba(41,209,127,.12);border:1px solid var(--green);color:var(--green);}
-.msg.er{background:rgba(255,93,108,.12);border:1px solid var(--red);color:var(--red);}
-.msg.wa{background:rgba(242,201,76,.12);border:1px solid var(--yellow);color:var(--yellow);}
-.msg.nt{background:rgba(93,168,255,.12);border:1px solid var(--blue);color:var(--blue);}
-
-.bil{background:var(--panel2);border-radius:11px;padding:12px;margin-bottom:10px;}
-.bil-h{display:flex;justify-content:space-between;align-items:center;font-size:14px;font-weight:600;gap:8px;}
-.bil-s{font-size:11px;color:var(--muted);margin:5px 0 8px;}
-.badge{padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap;}
-.badge.g{background:rgba(41,209,127,.18);color:var(--green);}
-.badge.r{background:rgba(255,93,108,.18);color:var(--red);}
-.badge.y{background:rgba(242,201,76,.18);color:var(--yellow);}
-.prog{height:7px;background:var(--panel2);border-radius:4px;overflow:hidden;margin:8px 0;}
-.prog span{display:block;height:100%;background:var(--blue);transition:width .25s;}
-.sm{font-size:11px;color:var(--muted);line-height:1.5;}
-hr{border:none;border-top:1px solid var(--border);margin:12px 0;}
-
-/* Card de confronto */
-.duelo{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:12px;}
-.duelo-top{display:flex;align-items:center;justify-content:space-between;gap:10px;}
-.duelo-time{flex:1;text-align:center;}
-.duelo-esc{width:52px;height:52px;border-radius:50%;margin:0 auto 7px;
-  display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;
-  background:var(--panel2);border:1px solid var(--border);}
-.duelo-nome{font-size:12px;font-weight:600;line-height:1.25;}
-.duelo-placar{font-size:34px;font-weight:800;letter-spacing:-1px;white-space:nowrap;}
-.duelo-tag{display:inline-block;margin-top:5px;padding:4px 11px;border-radius:20px;
-  background:rgba(31,224,160,.14);color:var(--mint);font-size:10px;font-weight:700;letter-spacing:.7px;}
-
-/* Painel confiança + destaque */
-.dupla{display:grid;grid-template-columns:1fr 1.4fr;gap:10px;margin-bottom:12px;}
-.conf{background:var(--panel);border:1px solid var(--border);border-radius:13px;padding:13px;}
-.conf-l{font-size:10px;color:var(--muted);letter-spacing:.8px;font-weight:700;}
-.conf-v{font-size:27px;font-weight:800;margin:6px 0 8px;}
-.conf-bar{height:6px;background:var(--panel2);border-radius:3px;overflow:hidden;}
-.conf-bar span{display:block;height:100%;border-radius:3px;}
-.dest{border-radius:13px;padding:13px;background:var(--mint);color:var(--ink);
-  display:flex;flex-direction:column;justify-content:space-between;}
-.dest.frio{background:var(--panel2);color:var(--text);border:1px solid var(--border);}
-.dest-l{font-size:10px;font-weight:800;letter-spacing:.8px;opacity:.75;}
-.dest-v{font-size:17px;font-weight:800;line-height:1.2;margin:6px 0;}
-.dest-o{font-size:12px;font-weight:700;opacity:.8;}
-
-/* Linha de mercado estilo comparativo */
-.mkt{display:flex;align-items:center;gap:11px;background:var(--panel2);
-  border:1px solid var(--border);border-radius:12px;padding:11px;margin-bottom:8px;}
-.mkt-ico{width:34px;height:34px;border-radius:50%;flex-shrink:0;
-  display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;}
-.mkt-ico.up{background:rgba(31,224,160,.16);color:var(--mint);}
-.mkt-ico.dn{background:rgba(255,93,108,.16);color:var(--red);}
-.mkt-nm{flex:1;font-size:13px;font-weight:600;line-height:1.3;}
-.mkt-sub{font-size:10px;color:var(--muted);margin-top:2px;}
-.mkt-num{text-align:right;font-size:11px;line-height:1.6;white-space:nowrap;}
-.mkt-num b{font-size:13px;}
-.mkt-add{width:38px;height:38px;border-radius:10px;border:none;flex-shrink:0;
-  background:var(--mint);color:var(--ink);font-size:20px;font-weight:700;line-height:1;}
-.mkt-add.on{background:var(--red);color:#fff;}
-
-/* Pontos-chave */
-.pchave{background:var(--panel2);border:1px solid var(--border);border-radius:12px;padding:13px;}
-.pchave li{font-size:13px;color:var(--text);line-height:1.5;margin-bottom:8px;list-style:none;
-  padding-left:15px;position:relative;}
-.pchave li:before{content:'';position:absolute;left:0;top:7px;width:5px;height:5px;
-  border-radius:50%;background:var(--mint);}
-.pchave li:last-child{margin-bottom:0;}
-.secao{font-size:11px;letter-spacing:1.2px;color:var(--muted);font-weight:700;margin:16px 0 8px;}
-
-/* Abas internas */
-.subtabs{display:flex;gap:4px;border-bottom:1px solid var(--border);margin-bottom:12px;}
-.subtab{flex:1;background:none;border:none;color:var(--muted);padding:10px 4px;font-size:13px;
-  font-weight:600;border-bottom:2px solid transparent;min-height:42px;}
-.subtab.active{color:var(--text);border-bottom-color:var(--mint);}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QuantFut Auto - Análise Quantitativa & Gestão de Apostas</title>
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { background-color: #0f172a; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; }
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #1e293b; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+    .tab-btn.active { border-bottom: 3px solid #3b82f6; color: #60a5fa; font-weight: 600; }
+  </style>
 </head>
-<body>
-
-<div class="tabbar">
-  <button class="tabbtn active" data-t="auto"><span class="ic">🤖</span>Auto</button>
-  <button class="tabbtn" data-t="jogos"><span class="ic">⚽</span>Jogos</button>
-  <button class="tabbtn" data-t="bilhete"><span class="ic">🎫</span>Bilhete</button>
-  <button class="tabbtn" data-t="multi"><span class="ic">🧩</span>Multi</button>
-  <button class="tabbtn" data-t="hist"><span class="ic">📚</span>Histórico</button>
-  <button class="tabbtn" data-t="carteira"><span class="ic">💰</span>Carteira</button>
-  <button class="tabbtn" data-t="evol"><span class="ic">📈</span>Evolução</button>
-  <button class="tabbtn" data-t="banca"><span class="ic">📊</span>Banca</button>
-</div>
-
-<div class="wrap">
-
-<section id="t-jogos" class="tabpage">
-  <div class="card">
-    <h1>Escolher jogo</h1>
-    <label>Competição</label>
-    <select id="comp"><option value="">Carregando competições...</option></select>
-    <div id="stComp"></div>
-    <button class="btn" id="bCarregar" style="margin-top:12px;">Carregar jogos</button>
-    <div class="prog" id="pr" style="display:none;"><span style="width:0%"></span></div>
-    <div id="stJogos"></div>
-  </div>
-  <div id="listaJogos"></div>
-</section>
-
-<section id="t-bilhete" class="tabpage">
-  <div id="bilheteConteudo">
-    <div class="card"><h1>Bilhete</h1><p>Escolha um jogo na aba Jogos.</p></div>
-  </div>
-</section>
-
-<section id="t-auto" class="tabpage active">
-  <div class="card">
-    <h1>Ciclo automático</h1>
-    <div id="cotaInfo"></div>
-    <p>Gera bilhetes para todos os jogos carregados, registra na banca virtual e verifica o resultado quando você informar o placar.</p>
-    <label>Competição</label>
-    <select id="autoComp"><option value="">Carregando...</option></select>
-    <label>Bilhetes por jogo (máximo)</label>
-    <input type="number" min="1" max="50" id="autoMax" value="12">
-    <label>Aposta simulada por bilhete (R$)</label>
-    <input type="number" step="0.5" id="autoStake" value="2">
-    <label>Mercados extras (escanteios, cartões, placar exato, jogadores)</label>
-    <select id="autoExtras">
-      <option value="nao">Não buscar (1 crédito por ciclo)</option>
-      <option value="sim">Buscar por jogo (gasta ~6 créditos por jogo)</option>
-      <option value="jog">Buscar com jogadores (~10 créditos por jogo)</option>
-    </select>
-    <p class="sm">Escanteios, cartões e jogadores vêm de um endpoint separado, cobrado por jogo. Eles não podem ser conferidos pelo placar — você informa os totais no Histórico.</p>
-    <button class="btn" id="bRodar" style="margin-top:12px;">Rodar ciclo</button>
-    <div class="prog" id="autoPr" style="display:none;"><span style="width:0%"></span></div>
-    <div id="autoStatus"></div>
-    <button class="btn sec sm" id="bLimparCache" style="margin-top:10px;width:100%;">Limpar cache de odds</button>
-  </div>
-
-  <div class="card">
-    <h2>Modo manual (sem gastar crédito)</h2>
-    <p>Digite as odds que você vê na casa de apostas. O sistema calcula tudo igual — as probabilidades sempre saíram das odds, não da API.</p>
-    <div class="grid2">
-      <div><label>Mandante</label><input id="mn_casa" placeholder="Time da casa"></div>
-      <div><label>Visitante</label><input id="mn_fora" placeholder="Time visitante"></div>
-      <div><label>Odd mandante</label><input type="number" step="0.01" id="mn_oc" placeholder="1.95"></div>
-      <div><label>Odd empate</label><input type="number" step="0.01" id="mn_oe" placeholder="3.30"></div>
-      <div><label>Odd visitante</label><input type="number" step="0.01" id="mn_of" placeholder="4.00"></div>
-      <div><label>Casa de apostas</label><input id="mn_bk" placeholder="Betano" value="Manual"></div>
-      <div><label>Odd Mais de 2.5</label><input type="number" step="0.01" id="mn_ov" placeholder="2.10"></div>
-      <div><label>Odd Menos de 2.5</label><input type="number" step="0.01" id="mn_un" placeholder="1.75"></div>
-    </div>
-    <button class="btn" id="bManual" style="margin-top:12px;">Gerar bilhetes</button>
-    <div id="manualStatus"></div>
-  </div>
-  <div id="autoResumo"></div>
-  <div class="card" id="autoFiltros" style="display:none;">
-    <div class="filterbar" id="fTipo">
-      <button class="active" data-f="all">Todos</button>
-      <button data-f="Equilibrado">Equilibrado</button>
-      <button data-f="Intermediário">Intermediário</button>
-      <button data-f="Super Oddão">Super Oddão</button>
-      <button data-f="Múltipla">Múltipla</button>
-    </div>
-  </div>
-  <div id="autoLista"></div>
-</section>
-
-<section id="t-carteira" class="tabpage">
-  <div class="card"><h1>Carteira virtual</h1><div class="grid3" id="cartKpis"></div></div>
-  <div class="card"><h2>Relatório do dia</h2><div id="relDia"></div></div>
-  <div class="card"><h2>Evolução da banca</h2><div id="graficoBanca"></div></div>
-  <div class="card">
-    <h2>Transações</h2>
-    <div id="transacoes"></div>
-  </div>
-</section>
-
-<section id="t-evol" class="tabpage">
-  <div class="card"><h1>Evolução do sistema</h1><div id="indicador"></div></div>
-  <div class="card"><h2>Qualidade das previsões</h2><div id="calib"></div></div>
-  <div class="card"><h2>Desempenho por ciclo</h2><div id="ciclos"></div></div>
-  <div class="card"><h2>Combinações com melhor retorno</h2><div id="topCombos"></div></div>
-</section>
-
-<section id="t-multi" class="tabpage">
-  <div class="card">
-    <h1>Multi-jogo</h1>
-    <p>Junte seleções de jogos diferentes. Aqui a matemática é limpa: jogos distintos são independentes, então a chance combinada é o produto real e a casa paga o produto das odds.</p>
-    <div id="selCount"></div>
-  </div>
-  <div id="selecoes"></div>
-  <div class="card" id="cardTipo" style="display:none;">
-    <h2>Tipo de aposta</h2>
-    <label>Formato</label>
-    <select id="tipoMulti"></select>
-    <label>Valor total a apostar (R$)</label>
-    <input type="number" step="0.5" id="stakeMulti" value="10">
-    <button class="btn" id="bCalcular" style="margin-top:12px;">Calcular</button>
-  </div>
-  <div id="resultadoMulti"></div>
-</section>
-
-<section id="t-hist" class="tabpage">
-  <div class="card">
-    <h1>Histórico</h1>
-    <p>Digite o placar final e o sistema marca linha por linha o que bateu.</p>
-    <div class="filterbar" id="filtroStatus">
-      <button class="active" data-f="all">Todos</button>
-      <button data-f="Green">Green</button>
-      <button data-f="Red">Red</button>
-      <button data-f="Aberto">Aberto</button>
-    </div>
-    <div class="filterbar" id="filtroTipo">
-      <button class="active" data-f="all">Todos tipos</button>
-      <button data-f="Equilibrado">Equilibrado</button>
-      <button data-f="Intermediário">Intermediário</button>
-      <button data-f="Super Oddão">Super Oddão</button>
-      <button data-f="Múltipla">Múltipla</button>
-    </div>
-    <button class="btn" id="bResultados" style="margin-top:10px;">Buscar resultados dos jogos encerrados</button>
-    <div id="resStatus"></div>
-    <div class="row" style="margin-top:10px;">
-      <button class="btn sec sm" id="bCSV">Exportar CSV</button>
-      <button class="btn dan sm" id="bLimpar">Limpar tudo</button>
-    </div>
-  </div>
-  <div id="listaHist"></div>
-</section>
-
-<section id="t-banca" class="tabpage">
-  <div class="card"><h1>Banca</h1><div class="grid3" id="kpis"></div></div>
-  <div class="card">
-    <h2>Limites e risco</h2>
-    <div id="limites"></div>
-  </div>
-  <div class="card">
-    <h2>Acerto por mercado</h2>
-    <div id="porMercado"></div>
-  </div>
-  <div class="card">
-    <h2>Acerto por competição</h2>
-    <div id="porLiga"></div>
-  </div>
-  <div class="card">
-    <h2>Configuração</h2>
-    <div class="msg wa">A chave da API fica escrita dentro deste arquivo. Quem receber o HTML consegue lê-la e gastar sua cota mensal. Não compartilhe o arquivo — se precisar enviar para alguém, troque a chave antes em the-odds-api.com.</div>
-    <label>Banca inicial (R$)</label>
-    <input type="number" step="10" id="cBanca" value="100">
-    <p class="sm">1u = 1% da banca. Equilibrado usa 2,5u e Super Oddão usa 0,75u.</p>
-    <button class="btn sm" id="bCfg" style="margin-top:12px;">Salvar</button>
-  </div>
-</section>
-
-</div>
-
-<script>
-/* ==========================================================================
-   QUANTFUT — versão enxuta
-   Ideia central: as odds da casa já contêm a melhor estimativa disponível
-   para o jogo. Em vez de tentar montar um modelo próprio com dados históricos
-   (que o plano gratuito de API não fornece), extraímos os gols esperados que
-   reproduzem essas odds e, a partir deles, calculamos qualquer mercado de
-   placar — inclusive os que a casa não cota.
-   Como todo mercado aqui é uma função do placar final, basta digitar o placar
-   para o sistema avaliar cada linha sozinho.
-   ========================================================================== */
-
-const ODDS_KEY='332b0997f3bd49039e9d5d9e5f77076e';
-const ODDS_BASE='https://api.the-odds-api.com/v4';
-const LS_HIST='quantfut_hist', LS_CFG='quantfut_cfg';
-
-let cfg={banca:100};
-let hist=[];
-let jogos=[];
-
-/* Base histórica: 56 bilhetes anteriores ao sistema. Entram só como registro
-   de banca — não têm linhas individuais, então não são avaliados por placar. */
-const LEGADO=[
- ['15','Equilibrado','Al Ain x Al Nassr',4.50,1.50,'Green'],['15','Super Oddão','Al Ain x Al Nassr',13.50,0.50,'Red'],
- ['15','Equilibrado','Al Hilal x Al Gharafa',4.05,2.00,'Red'],['15','Super Oddão','Al Hilal x Al Gharafa',10.50,0.50,'Red'],
- ['15','Equilibrado','Guoan x Pohang',4.10,1.50,'Red'],['15','Super Oddão','Guoan x Pohang',12.50,0.25,'Red'],
- ['15','Equilibrado','Ipswich x Arsenal',4.50,1.50,'Green'],['15','Super Oddão','Ipswich x Arsenal',8.56,0.50,'Red'],
- ['15','Equilibrado','Liverpool x Tottenham',4.49,1.50,'Green'],['15','Super Oddão','Liverpool x Tottenham',10.50,0.50,'Green'],
- ['15','Equilibrado','Elche x Real Madrid',4.01,2.00,'Red'],['15','Super Oddão','Elche x Real Madrid',8.82,0.50,'Green'],
- ['15','Equilibrado','Platense x Fluminense',3.80,1.75,'Green'],['15','Super Oddão','Platense x Fluminense',8.40,0.30,'Red'],
- ['15','Equilibrado','Vasco x Santa Fe',4.05,1.75,'Red'],['15','Super Oddão','Vasco x Santa Fe',9.20,0.60,'Red'],
- ['15','Equilibrado','São Paulo x Boca',4.35,1.75,'Red'],['15','Super Oddão','São Paulo x Boca',10.80,0.30,'Red'],
- ['15','Equilibrado','Londrina x Ponte Preta',4.10,1.75,'Red'],['15','Super Oddão','Londrina x Ponte Preta',9.50,0.30,'Red'],
- ['15','Equilibrado','Náutico x Operário',4.00,1.75,'Red'],['15','Super Oddão','Náutico x Operário',9.80,0.30,'Red'],
- ['15','Equilibrado','CRB x Sport Recife',4.05,1.75,'Green'],['15','Super Oddão','CRB x Sport Recife',9.50,0.30,'Green'],
- ['16','Equilibrado','Anderlecht x Lyon',4.30,1.83,'Aberto'],['16','Super Oddão','Anderlecht x Lyon',8.50,0.31,'Aberto'],
- ['16','Equilibrado','Everton x Wolves',4.20,1.83,'Red'],['16','Super Oddão','Everton x Wolves',9.00,0.31,'Red'],
- ['16','Equilibrado','Man Utd x Brighton',4.40,1.83,'Green'],['16','Super Oddão','Man Utd x Brighton',9.50,0.31,'Green'],
- ['16','Equilibrado','AC Milan x Benfica',4.20,1.83,'Aberto'],['16','Super Oddão','AC Milan x Benfica',9.00,0.31,'Aberto'],
- ['16','Equilibrado','Sunderland x AZ',4.00,1.83,'Green'],['16','Super Oddão','Sunderland x AZ',8.50,0.31,'Red'],
- ['16','Equilibrado','Atlético x Osasuna',3.80,1.83,'Red'],['16','Super Oddão','Atlético x Osasuna',8.00,0.31,'Green'],
- ['16','Equilibrado','Levante x Athletic',4.30,1.83,'Aberto'],['16','Super Oddão','Levante x Athletic',8.50,0.31,'Aberto'],
- ['16','Equilibrado','Corinthians x Estudiantes',4.50,1.83,'Aberto'],['16','Super Oddão','Corinthians x Estudiantes',10.00,0.31,'Aberto'],
- ['16','Equilibrado','Atlético-MG x Santos',4.20,1.83,'Aberto'],['16','Super Oddão','Atlético-MG x Santos',9.50,0.31,'Aberto'],
- ['17','Equilibrado','Besiktas x Marseille',4.20,3.03,'Aberto'],['17','Super Oddão','Besiktas x Marseille',11.50,0.91,'Aberto'],
- ['17','Equilibrado','Celtic x Ferencváros',4.40,3.03,'Aberto'],['17','Super Oddão','Celtic x Ferencváros',10.50,0.91,'Aberto'],
- ['17','Equilibrado','Crystal Palace x Lech',4.50,3.03,'Aberto'],['17','Super Oddão','Crystal Palace x Lech',9.00,0.91,'Aberto'],
- ['17','Equilibrado','Real Sociedad x Bournemouth',4.30,3.03,'Aberto'],['17','Super Oddão','Real Sociedad x Bournemouth',10.00,0.91,'Aberto'],
- ['17','Equilibrado','Flamengo x Ind. del Valle',4.20,3.03,'Aberto'],['17','Super Oddão','Flamengo x Ind. del Valle',9.50,0.91,'Aberto'],
- ['17','Equilibrado','Botafogo x Grêmio',4.00,3.03,'Aberto'],['17','Super Oddão','Botafogo x Grêmio',9.50,0.91,'Aberto'],
- ['17','Equilibrado','Corinthians x Estudiantes',4.50,3.03,'Aberto'],['17','Super Oddão','Corinthians x Estudiantes',10.00,0.91,'Aberto'],
-];
-function semearLegado(){
-  return LEGADO.map((x,i)=>({
-    id:'L'+i, data:`2026-09-${x[0]}T12:00:00Z`, inicio:`2026-09-${x[0]}T12:00:00Z`,
-    jogo:x[2], tipo:x[1], odd:x[3], stake:x[4], linhas:[], prob:null,
-    placar:'', status:x[5], legado:true }));
-}
-
-/* ==========================================================================
-   MULTI-JOGO: múltipla simples e sistemas
-   Seleções de jogos diferentes são eventos independentes, então a chance
-   combinada é o produto das individuais e a casa paga o produto das odds.
-   É o oposto do bilhete de jogo único, em que as linhas se influenciam.
-   ========================================================================== */
-const SISTEMAS={
-  'multipla': {nome:'Múltipla simples', min:2, max:15, tamanhos:null},
-  'trixie':   {nome:'Trixie',      min:3, max:3, tamanhos:[2,3]},
-  'patent':   {nome:'Patent',      min:3, max:3, tamanhos:[1,2,3]},
-  'yankee':   {nome:'Yankee',      min:4, max:4, tamanhos:[2,3,4]},
-  'lucky15':  {nome:'Lucky 15',    min:4, max:4, tamanhos:[1,2,3,4]},
-  'canadian': {nome:'Canadian',    min:5, max:5, tamanhos:[2,3,4,5]},
-  'lucky31':  {nome:'Lucky 31',    min:5, max:5, tamanhos:[1,2,3,4,5]},
-  'heinz':    {nome:'Heinz',       min:6, max:6, tamanhos:[2,3,4,5,6]},
-  'lucky63':  {nome:'Lucky 63',    min:6, max:6, tamanhos:[1,2,3,4,5,6]},
-  'superheinz':{nome:'Super Heinz',min:7, max:7, tamanhos:[2,3,4,5,6,7]},
-  'goliath':  {nome:'Goliath',     min:8, max:8, tamanhos:[2,3,4,5,6,7,8]},
-};
-function subconjuntos(n,tamanhos){
-  const out=[];
-  tamanhos.forEach(t=>{
-    (function go(inicio,ac){
-      if(ac.length===t){ out.push(ac.slice()); return; }
-      for(let i=inicio;i<n;i++){ ac.push(i); go(i+1,ac); ac.pop(); }
-    })(0,[]);
-  });
-  return out;
-}
-
-/* Enumera os 2^n resultados possíveis para obter o retorno exato de cada
-   cenário de acertos. Com até 8 seleções são no máximo 256 casos. */
-function calcularSistema(sels,chave,stakeTotal){
-  const S=SISTEMAS[chave], n=sels.length;
-  const apostas = S.tamanhos ? subconjuntos(n,S.tamanhos) : [Array.from({length:n},(_,i)=>i)];
-  const porAposta = stakeTotal/apostas.length;
-  const cenarios={};
-  let ev=0;
-  for(let mask=0; mask<(1<<n); mask++){
-    let p=1; const acertou=[];
-    for(let i=0;i<n;i++){
-      if(mask>>i & 1){ p*=sels[i].prob; acertou.push(i); }
-      else p*=(1-sels[i].prob);
-    }
-    let ret=0;
-    apostas.forEach(ap=>{
-      if(ap.every(i=>acertou.includes(i))){
-        let r=porAposta; ap.forEach(i=>r*=sels[i].odd); ret+=r;
-      }
-    });
-    ev+=p*ret;
-    const k=acertou.length;
-    cenarios[k]=cenarios[k]||{prob:0,ret:0};
-    cenarios[k].prob+=p;
-    cenarios[k].ret=ret; // mesmo nº de acertos pode dar retornos distintos; guarda o último
-  }
-  // Retorno por nº de acertos, ponderado (odds diferentes mudam o valor)
-  const porAcertos={};
-  for(let k=0;k<=n;k++){
-    let somaP=0, somaR=0;
-    for(let mask=0; mask<(1<<n); mask++){
-      const idx=[]; let p=1;
-      for(let i=0;i<n;i++){ if(mask>>i&1){idx.push(i);p*=sels[i].prob;} else p*=(1-sels[i].prob); }
-      if(idx.length!==k) continue;
-      let ret=0;
-      apostas.forEach(ap=>{ if(ap.every(i=>idx.includes(i))){
-        let r=porAposta; ap.forEach(i=>r*=sels[i].odd); ret+=r; } });
-      somaP+=p; somaR+=p*ret;
-    }
-    porAcertos[k]={prob:somaP, retMedio: somaP>0? somaR/somaP : 0};
-  }
-  const minAcertos = S.tamanhos ? Math.min(...S.tamanhos) : n;
-  return {nApostas:apostas.length, porAposta, stakeTotal, ev,
-          evPct:(ev/stakeTotal-1)*100, porAcertos, minAcertos, n,
-          oddMax: sels.reduce((a,s)=>a*s.odd,1),
-          probTodas: sels.reduce((a,s)=>a*s.prob,1)};
-}
-
-function melhorMulti(){
-  /* Numa múltipla de jogos diferentes você também aposta em uma casa só.
-     Escolhemos a que aparece como melhor no maior número de seleções. */
-  const cont={};
-  selecoes.forEach(s=>{ if(s.casaNome) cont[s.casaNome]=(cont[s.casaNome]||0)+1; });
-  const e=Object.entries(cont).sort((a,b)=>b[1]-a[1]);
-  return e.length? e[0][0] : 'melhor disponível';
-}
-let selecoes=[];
-window.addSelecao=function(tipo){
-  const b=tipo==='Equilibrado'?atual.eq:atual.so;
-  if(!b) return;
-  if(selecoes.length>=8){ alert('Máximo de 8 seleções.'); return; }
-  if(selecoes.some(s=>s.jogo===`${atual.jogo.casa} x ${atual.jogo.fora}`)){
-    alert('Já há uma seleção desse jogo. Em múltipla e sistema cada jogo entra uma vez só — duas linhas do mesmo jogo não são independentes.');
-    return;
-  }
-  selecoes.push({jogo:`${atual.jogo.casa} x ${atual.jogo.fora}`,
-    descricao:b.linhas.map(l=>l.nome).join(' + '), linhas:b.nomes,
-    odd:b.odd, prob:b.p, tipo, casaNome:b.casaNome});
-  renderMulti(); irPara('multi');
-};
-window.removerSelecao=function(i){ selecoes.splice(i,1); renderMulti(); };
-
-function renderMulti(){
-  selCount.innerHTML = selecoes.length
-    ? `<div class="msg ok">${selecoes.length} seleção(ões). ${selecoes.length<2?'Adicione mais uma para montar múltipla.':''}</div>`
-    : `<div class="msg nt">Nenhuma seleção. Gere um bilhete na aba Jogos e toque em "+ Multi-jogo".</div>`;
-  selecoes2 = selecoes;
-  document.getElementById('selecoes').innerHTML = selecoes.map((s,i)=>`
-    <div class="card" style="padding:12px;">
-      <div class="bil-h"><span style="font-size:14px;">${s.jogo}</span>
-        <span class="badge y">${s.odd.toFixed(2)}</span></div>
-      <p class="sm" style="margin:5px 0 8px;">${s.descricao} · chance ${(s.prob*100).toFixed(1)}%</p>
-      <button class="btn dan sm" style="width:100%;" onclick="removerSelecao(${i})">Remover</button>
-    </div>`).join('');
-
-  const n=selecoes.length;
-  cardTipo.style.display = n>=2 ? 'block' : 'none';
-  if(n>=2){
-    const opcoes=Object.entries(SISTEMAS).filter(([k,S])=>n>=S.min&&n<=S.max);
-    tipoMulti.innerHTML=opcoes.map(([k,S])=>{
-      const na=S.tamanhos?subconjuntos(n,S.tamanhos).length:1;
-      return `<option value="${k}">${S.nome} — ${na} aposta${na>1?'s':''}</option>`;
-    }).join('');
-  }
-  resultadoMulti.innerHTML='';
-}
-let selecoes2=[];
-
-document.getElementById('bCalcular').addEventListener('click',()=>{
-  const chave=tipoMulti.value;
-  const total=parseFloat(stakeMulti.value)||10;
-  const r=calcularSistema(selecoes,chave,total);
-  const S=SISTEMAS[chave];
-  const nomeJogos=selecoes.map((s,i)=>`${i+1}. ${s.jogo}: ${s.descricao} — odd ${s.odd.toFixed(2)}`).join('\n');
-
-  const txt = chave==='multipla'
-    ? `🎫 MÚLTIPLA SIMPLES — ${selecoes.length} jogos\n🏦 Casa: ${melhorMulti()}\n💰 Odd total: ${r.oddMax.toFixed(2)}\n💵 Stake: R$ ${total.toFixed(2).replace('.',',')}\n🎯 Retorno: R$ ${(total*r.oddMax).toFixed(2).replace('.',',')}\n📈 Chance: ${(r.probTodas*100).toFixed(1)}%\nJogos:\n${nomeJogos}`
-    : `🎫 SISTEMA ${S.nome.toUpperCase()} — ${selecoes.length} seleções\n🏦 Casa: ${melhorMulti()}\n🧮 ${r.nApostas} apostas de R$ ${r.porAposta.toFixed(2).replace('.',',')}\n💵 Stake total: R$ ${total.toFixed(2).replace('.',',')}\n🎯 Retorno se todas baterem: R$ ${r.porAcertos[r.n].retMedio.toFixed(2).replace('.',',')}\nSeleções:\n${nomeJogos}`;
-  const id='m'+Math.random().toString(36).slice(2,8);
-  window['__'+id]=txt;
-
-  const tabela=Object.entries(r.porAcertos).filter(([k,v])=>v.prob>0.001&&+k>=0)
-    .map(([k,v])=>`<tr>
-      <td>${k} de ${r.n}</td>
-      <td style="text-align:right;">${(v.prob*100).toFixed(1)}%</td>
-      <td style="text-align:right;color:${v.retMedio>=r.stakeTotal?'var(--green)':'var(--red)'}">R$ ${v.retMedio.toFixed(2)}</td>
-    </tr>`).reverse().join('');
-
-  resultadoMulti.innerHTML=`<div class="card">
-    <h2>${chave==='multipla'?'MÚLTIPLA SIMPLES':'SISTEMA '+S.nome.toUpperCase()} — ${r.n} seleções</h2>
-    <table style="width:100%;font-size:14px;margin:10px 0;">
-      <tr><td style="color:var(--muted);padding:3px 0;">Casa</td><td style="text-align:right;font-weight:600;">${melhorMulti()}</td></tr>
-      <tr><td style="color:var(--muted);padding:3px 0;">Total de apostas</td><td style="text-align:right;font-weight:600;">${r.nApostas}</td></tr>
-      ${r.nApostas>1?`<tr><td style="color:var(--muted);padding:3px 0;">Stake por aposta</td><td style="text-align:right;font-weight:600;">R$ ${r.porAposta.toFixed(2).replace('.',',')}</td></tr>`:''}
-      <tr><td style="color:var(--muted);padding:3px 0;">Stake total</td><td style="text-align:right;font-weight:600;">R$ ${total.toFixed(2).replace('.',',')}</td></tr>
-      ${chave==='multipla'?`<tr><td style="color:var(--muted);padding:3px 0;">Odd total</td><td style="text-align:right;font-weight:700;color:var(--yellow);font-size:17px;">${r.oddMax.toFixed(2)}</td></tr>`:''}
-      <tr><td style="color:var(--muted);padding:3px 0;">Retorno se tudo bater</td><td style="text-align:right;font-weight:700;color:var(--green);">R$ ${r.porAcertos[r.n].retMedio.toFixed(2).replace('.',',')}</td></tr>
-      <tr><td style="color:var(--muted);padding:3px 0;">Chance de tudo bater</td><td style="text-align:right;font-weight:600;">${(r.probTodas*100).toFixed(1)}%</td></tr>
-      <tr><td style="color:var(--muted);padding:3px 0;">Precisa acertar</td><td style="text-align:right;font-weight:600;">${r.minAcertos} de ${r.n}</td></tr>
-    </table>
-    <div style="color:var(--muted);font-size:12px;margin:10px 0 6px;">Retorno por número de acertos</div>
-    <table style="width:100%;font-size:13px;">
-      <thead><tr><th>Acertos</th><th style="text-align:right;">Chance</th><th style="text-align:right;">Retorno</th></tr></thead>
-      <tbody>${tabela}</tbody>
-    </table>
-    <div class="msg ${r.evPct>=0?'ok':'wa'}" style="margin-top:10px;">
-      Retorno esperado: <b>R$ ${r.ev.toFixed(2)}</b> sobre R$ ${total.toFixed(2)} apostados (${r.evPct>=0?'+':''}${r.evPct.toFixed(1)}%).
-      ${r.evPct<0?' Negativo porque a margem da casa está embutida em cada odd — é o normal, e vale para qualquer sistema.':''}
-    </div>
-    <div class="row" style="margin-top:10px;">
-      <button class="btn sm" style="flex:1;" onclick="copiar(this,window['__${id}'])">Copiar bilhete</button>
-      <button class="btn sec sm" style="flex:1;" onclick="salvarMulti('${chave}',${total},${r.oddMax},${r.probTodas})">Salvar</button>
-    </div>
-  </div>`;
-});
-
-window.salvarMulti=function(chave,total,odd,prob){
-  hist.unshift({id:'M'+Date.now(), data:new Date().toISOString(),
-    inicio:selecoes[0].inicio||new Date().toISOString(),
-    jogo:`${SISTEMAS[chave].nome} (${selecoes.length} seleções)`,
-    tipo:SISTEMAS[chave].nome, odd:+odd.toFixed(2), stake:total,
-    linhas:selecoes.map(s=>`${s.jogo}: ${s.descricao}`), prob,
-    placar:'', status:'Aberto', multi:true});
-  salvarHist(); selecoes=[]; renderMulti(); render(); irPara('hist');
-};
-
-/* ==========================================================================
-   CICLO AUTOMÁTICO, CARTEIRA VIRTUAL E MÉTRICAS
-   ========================================================================== */
-const LS_CART='quantfut_carteira';
-let carteira={inicial:1000, transacoes:[]};
-function loadCarteira(){
-  try{ const c=JSON.parse(localStorage.getItem(LS_CART)||'null'); if(c) carteira={...carteira,...c}; }catch(e){}
-}
-function salvarCarteira(){ try{ localStorage.setItem(LS_CART,JSON.stringify(carteira)); }catch(e){} }
-function saldoCarteira(){
-  return carteira.transacoes.reduce((s,t)=>s+t.valor, carteira.inicial);
-}
-function exposicaoAberta(){
-  return hist.filter(x=>x.status==='Aberto'&&x.simulado).reduce((s,x)=>s+x.stake,0);
-}
-
-/* Gera muitos bilhetes por jogo. Ordena por probabilidade dentro de cada faixa
-   de odd — não por "EV", porque o EV contra o produto das odds simples não
-   existe de verdade (a casa precifica a múltipla pela chance conjunta). */
-function gerarEmMassa(j,maxBilhetes){
-  const an=analisarJogo(j);
-  let cand=an.mercados.filter(m=>m.p>0.12&&m.p<0.93&&m.odd>=1.10);
-  /* Mercados que não dependem do placar entram com a probabilidade implícita
-     na própria odd (1/odd), já que o modelo de gols não os alcança. */
-  if(j.extras&&j.extras.length){
-    const fora=j.extras.filter(e=>e.odd>1.10&&e.odd<12)
-      .map(e=>({nome:e.nome, p:Math.min(0.92,1/e.odd*0.94), odd:e.odd,
-                estimada:false, externo:true, confere:e.confere}));
-    cand=cand.concat(fora.slice(0,24));
-  }
-  const achados=[];
-  [2,3,4,5,6].forEach(k=>{
-    if(achados.length>600) return;
-    combinar(cand,k).forEach(c=>{
-      if(achados.length>400) return;
-      const nomes=c.map(m=>m.nome);
-      const p=probJunta(nomes,an.g,cand);
-      if(p<0.025) return;
-      if(temRedundancia(nomes,an.g,cand)) return;
-      const prod=c.reduce((a,m)=>a*m.odd,1);
-      if(nomes.every(n=>MERCADOS[n]) && equivaleAMercadoSimples(nomes,an.mercados,an.g,prod)) return;
-      const odd=oddBetBuilder(p);
-      if(odd<2.00||odd>40.00) return;
-      const tipo = odd<=5.00?'Equilibrado' : odd<8.00?'Intermediário'
-                 : odd<=15.00?'Super Oddão' : 'Múltipla';
-      if(odd>8.00&&c.length<3) return;   // odd alta com 2 linhas é sinal de linha frouxa
-      achados.push({linhas:c,nomes,p,odd,tipo,jogo:`${j.casa} x ${j.fora}`,inicio:j.inicio});
-    });
-  });
-  // Remove quase-duplicatas: 3+ linhas em comum e odd parecida
-  const finais=[];
-  const usoLinha={};           // quantas vezes cada linha já apareceu
-  achados.sort((a,b)=>b.p-a.p).forEach(b=>{
-    // Quase-duplicata: metade ou mais das linhas em comum com um bilhete já aceito
-    const dup=finais.some(f=>{
-      const comuns=f.nomes.filter(n=>b.nomes.includes(n)).length;
-      const menor=Math.min(f.nomes.length,b.nomes.length);
-      return comuns/menor>=0.75 && Math.abs(f.odd-b.odd)/f.odd<0.08;
-    });
-    if(dup) return;
-    // Evita que a mesma linha domine a lista inteira
-    const saturada=b.nomes.some(n=>(usoLinha[n]||0)>=Math.max(4,Math.ceil(maxBilhetes*0.5)));
-    if(saturada) return;
-    b.nomes.forEach(n=>{ usoLinha[n]=(usoLinha[n]||0)+1; });
-    finais.push(b);
-  });
-  // Distribui entre os três tipos para a lista não virar só um deles
-  const porTipo={'Equilibrado':[],'Intermediário':[],'Super Oddão':[],'Múltipla':[]};
-  finais.forEach(b=>porTipo[b.tipo].push(b));
-  const q=Math.ceil(maxBilhetes/4);
-  const saida=[];
-  ['Equilibrado','Intermediário','Super Oddão','Múltipla'].forEach(t=>saida.push(...porTipo[t].slice(0,q)));
-  return saida.slice(0,maxBilhetes);
-}
-
-let autoGerados=[], filtroAuto='all';
-
-document.getElementById('bRodar').addEventListener('click',async()=>{
-  const st=autoStatus, pr=autoPr;
-  const maxB=Math.min(50,parseInt(autoMax.value)||12);
-  const stake=parseFloat(autoStake.value)||2;
-  pr.style.display='block'; pr.firstElementChild.style.width='20%';
-  st.innerHTML='<p>Buscando jogos e odds...</p>';
-  try{
-    const lista=await carregarJogos(autoComp.value);
-    if(!lista.length){
-      st.innerHTML='<div class="msg wa">Nenhum jogo com odds abertas nessa competição.</div>';
-      pr.style.display='none'; return;
-    }
-    jogos=lista;
-    pr.firstElementChild.style.width='55%';
-    st.innerHTML=`<p>${lista.length} jogos. Montando bilhetes...</p>`;
-    await new Promise(r=>setTimeout(r,30));
-
-    autoGerados=[];
-    const modo=autoExtras.value;
-    for(const j of lista){
-      if(modo!=='nao'){
-        try{
-          const ex=await buscarExtras(autoComp.value, j.id, modo==='jog');
-          if(ex.length) j.extras=ex;
-        }catch(e){ /* sem extras para este jogo */ }
-      }
-      autoGerados.push(...gerarEmMassa(j,maxB));
-    }
-    pr.firstElementChild.style.width='85%';
-
-    // Registra tudo como aposta simulada
-    let novos=0;
-    autoGerados.forEach(b=>{
-      const chave=`${b.jogo}|${b.nomes.join('+')}`;
-      if(hist.some(h=>h.chave===chave)) return;
-      const id='A'+Date.now()+'_'+(novos++);
-      hist.unshift({id, chave, data:new Date().toISOString(), inicio:b.inicio,
-        jogo:b.jogo, tipo:b.tipo, odd:b.odd, stake, linhas:b.nomes,
-        prob:b.p, placar:'', status:'Aberto', simulado:true,
-        sport:autoComp.value, escanteios:null, cartoes:null, marcadores:''});
-      carteira.transacoes.push({ts:Date.now(), tipo:'Aposta', ref:id,
-        desc:`${b.tipo} — ${b.jogo}`, valor:-stake});
-    });
-    salvarHist(); salvarCarteira();
-
-    pr.firstElementChild.style.width='100%';
-    const abertos=hist.filter(x=>x.status==='Aberto'&&x.simulado).length;
-    const fechHoje=hist.filter(x=>x.status!=='Aberto'&&x.simulado&&
-      new Date(x.data).toDateString()===new Date().toDateString());
-    const g=fechHoje.filter(x=>x.status==='Green').length;
-    const l=fechHoje.reduce((a,x)=>a+lucro(x),0);
-    const apostadoHoje=fechHoje.reduce((a,x)=>a+x.stake,0);
-
-    autoResumo.innerHTML=`<div class="card">
-      <h2>Resumo do ciclo</h2>
-      <div class="grid3">
-        <div class="kpi"><div class="v">${lista.length}</div><div class="l">Jogos analisados</div></div>
-        <div class="kpi"><div class="v inf">${novos}</div><div class="l">Bilhetes gerados</div></div>
-        <div class="kpi"><div class="v warn">${abertos}</div><div class="l">Abertos no total</div></div>
-        <div class="kpi"><div class="v pos">${g}</div><div class="l">Green hoje</div></div>
-        <div class="kpi"><div class="v neg">${fechHoje.length-g}</div><div class="l">Red hoje</div></div>
-        <div class="kpi"><div class="v ${l>=0?'pos':'neg'}">${l>=0?'+':''}R$ ${l.toFixed(2)}</div><div class="l">Resultado de hoje${apostadoHoje?` (${(l/apostadoHoje*100).toFixed(0)}%)`:''}</div></div>
-      </div>
-      <div class="msg nt" style="margin-top:10px;">Exposição simulada: R$ ${(novos*stake).toFixed(2)} neste ciclo.
-        Saldo da carteira: R$ ${saldoCarteira().toFixed(2)}.</div>
-    </div>`;
-    autoFiltros.style.display='block';
-    st.innerHTML=`<div class="msg ok">Ciclo concluído. ${novos} bilhete(s) novo(s) registrados na carteira virtual.</div>`;
-    renderAuto(); render();
-  }catch(e){
-    const m=String(e.message);
-    st.innerHTML=`<div class="msg er">${/Failed to fetch|NetworkError|Load failed/i.test(m)
-      ? 'Requisição bloqueada pelo navegador. Sirva o arquivo por HTTP local.'
-      : m.startsWith('AUTH') ? msgAuth(m) : 'Falha: '+m}</div>`;
-  }
-  setTimeout(()=>pr.style.display='none',700);
-});
-
-function renderAuto(){
-  const lista=autoGerados.filter(b=>filtroAuto==='all'||b.tipo===filtroAuto);
-  if(!lista.length){ autoLista.innerHTML=''; return; }
-  const dest=[...lista].sort((a,b)=>b.p-a.p).slice(0,5);
-  autoLista.innerHTML=`<div class="card">
-      <h2>Destaques (maior chance de bater)</h2>
-      ${dest.map((b,i)=>`<div class="linha">
-        <div class="nm" style="font-size:13px;">${i+1}. ${b.jogo}
-          <div class="dt">${b.nomes.join(' + ')}</div></div>
-        <div class="od">${b.odd.toFixed(2)}</div></div>`).join('')}
-    </div>`+
-    lista.slice(0,60).map(b=>`<div class="card" style="padding:12px;">
-      <div class="bil-h"><span style="font-size:14px;">${b.jogo}</span>
-        <span class="badge ${b.tipo==='Equilibrado'?'g':b.tipo==='Super Oddão'?'y':'r'}">${b.odd.toFixed(2)}</span></div>
-      <p class="sm" style="margin:5px 0 6px;">${b.tipo} · chance ${(b.p*100).toFixed(1)}%</p>
-      ${b.nomes.map((n,i)=>`<div class="sm">${i+1}. ${n}</div>`).join('')}
-    </div>`).join('');
-}
-document.getElementById('fTipo').addEventListener('click',e=>{
-  if(e.target.tagName!=='BUTTON') return;
-  filtroAuto=e.target.dataset.f;
-  [...e.currentTarget.children].forEach(b=>b.classList.toggle('active',b===e.target));
-  renderAuto();
-});
-
-/* ---------- Carteira ---------- */
-function renderCarteira(){
-  const saldo=saldoCarteira(), exp=exposicaoAberta();
-  const sim=hist.filter(x=>x.simulado);
-  const fech=sim.filter(x=>x.status!=='Aberto');
-  const l=fech.reduce((a,x)=>a+lucro(x),0);
-  const ap=fech.reduce((a,x)=>a+x.stake,0);
-  cartKpis.innerHTML=`
-    <div class="kpi"><div class="v ${saldo>=carteira.inicial?'pos':'neg'}">R$ ${saldo.toFixed(2)}</div><div class="l">Saldo</div></div>
-    <div class="kpi"><div class="v warn">R$ ${exp.toFixed(2)}</div><div class="l">Exposto</div></div>
-    <div class="kpi"><div class="v ${l>=0?'pos':'neg'}">${l>=0?'+':''}R$ ${l.toFixed(2)}</div><div class="l">Resultado</div></div>
-    <div class="kpi"><div class="v">${fech.length}</div><div class="l">Liquidados</div></div>
-    <div class="kpi"><div class="v warn">${sim.length-fech.length}</div><div class="l">Abertos</div></div>
-    <div class="kpi"><div class="v ${ap&&l/ap>=0?'pos':'neg'}">${ap?(l/ap*100).toFixed(1):'0'}%</div><div class="l">ROI</div></div>`;
-
-  const hoje=new Date().toDateString();
-  const dHoje=sim.filter(x=>new Date(x.data).toDateString()===hoje);
-  const fHoje=dHoje.filter(x=>x.status!=='Aberto');
-  const lHoje=fHoje.reduce((a,x)=>a+lucro(x),0);
-  const apHoje=fHoje.reduce((a,x)=>a+x.stake,0);
-  relDia.innerHTML=`<div class="grid2">
-    <div class="kpi"><div class="v">${dHoje.length}</div><div class="l">Abertos hoje</div></div>
-    <div class="kpi"><div class="v">${fHoje.length}</div><div class="l">Fechados hoje</div></div>
-    <div class="kpi"><div class="v pos">${fHoje.filter(x=>x.status==='Green').length}</div><div class="l">Green</div></div>
-    <div class="kpi"><div class="v neg">${fHoje.filter(x=>x.status==='Red').length}</div><div class="l">Red</div></div>
-    <div class="kpi"><div class="v ${lHoje>=0?'pos':'neg'}">${lHoje>=0?'+':''}R$ ${lHoje.toFixed(2)}</div><div class="l">Resultado</div></div>
-    <div class="kpi"><div class="v ${apHoje&&lHoje/apHoje>=0?'pos':'neg'}">${apHoje?(lHoje/apHoje*100).toFixed(0):'0'}%</div><div class="l">ROI do dia</div></div>
-  </div>`;
-
-  // Gráfico da banca
-  const ord=[...fech].sort((a,b)=>new Date(a.data)-new Date(b.data));
-  if(ord.length>1){
-    let sal=carteira.inicial; const pts=[sal];
-    ord.forEach(x=>{ sal+=lucro(x); pts.push(sal); });
-    const w=320,h=120,pad=6;
-    const mn=Math.min(...pts), mx=Math.max(...pts), rg=(mx-mn)||1;
-    const d=pts.map((v,i)=>`${pad+i/(pts.length-1)*(w-pad*2)},${h-pad-(v-mn)/rg*(h-pad*2)}`).join(' ');
-    const fim=pts[pts.length-1];
-    graficoBanca.innerHTML=`<svg viewBox="0 0 ${w} ${h}" style="width:100%;">
-      <polyline points="${d}" fill="none" stroke="${fim>=carteira.inicial?'#29d17f':'#ff5d6c'}" stroke-width="2"/>
-      </svg><p class="sm">De R$ ${carteira.inicial.toFixed(2)} a R$ ${fim.toFixed(2)} em ${ord.length} bilhetes liquidados.</p>`;
-  } else graficoBanca.innerHTML='<p>Liquide alguns bilhetes para ver a curva.</p>';
-
-  const ult=carteira.transacoes.slice(-25).reverse();
-  transacoes.innerHTML = ult.length ? ult.map(t=>`
-    <div class="row" style="justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);">
-      <span class="sm">${new Date(t.ts).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})} · ${t.desc}</span>
-      <span class="sm ${t.valor>=0?'pos':'neg'}">${t.valor>=0?'+':''}R$ ${t.valor.toFixed(2)}</span>
-    </div>`).join('') : '<p>Nenhuma transação.</p>';
-}
-
-/* ---------- Evolução ---------- */
-function metricas(lista){
-  const f=lista.filter(x=>x.status!=='Aberto'&&x.prob>0&&x.prob<1);
-  if(f.length<2) return null;
-  const rets=f.map(x=>x.status==='Green'?(x.odd-1):-1);
-  const m=rets.reduce((a,b)=>a+b,0)/rets.length;
-  const sd=Math.sqrt(rets.reduce((s,x)=>s+(x-m)**2,0)/(rets.length-1||1));
-  const se=sd/Math.sqrt(rets.length);
-  const preds=f.map(x=>({p:x.prob,o:x.status==='Green'?1:0}));
-  const brier=preds.reduce((s,x)=>s+(x.p-x.o)**2,0)/preds.length;
-  const ll=-preds.reduce((s,x)=>s+x.o*Math.log(Math.max(x.p,1e-9))+(1-x.o)*Math.log(Math.max(1-x.p,1e-9)),0)/preds.length;
-  const base=preds.reduce((s,x)=>s+x.o,0)/preds.length;
-  const brierBase=preds.reduce((s,x)=>s+(base-x.o)**2,0)/preds.length;
-  const previsto=preds.reduce((s,x)=>s+x.p,0)/preds.length;
-  return {n:f.length, roi:m*100, lo:(m-1.96*se)*100, hi:(m+1.96*se)*100, sd,
-          brier, ll, skill: brierBase>0?(1-brier/brierBase)*100:0,
-          previsto:previsto*100, observado:base*100, vies:(previsto-base)*100,
-          significativo:(m-1.96*se)>0||(m+1.96*se)<0};
-}
-
-function renderEvolucao(){
-  const sim=hist.filter(x=>x.simulado);
-  const mt=metricas(sim);
-  if(!mt){
-    indicador.innerHTML='<div class="msg nt">Rode um ciclo e informe placares no Histórico para o sistema começar a medir.</div>';
-    calib.innerHTML=''; ciclos.innerHTML=''; topCombos.innerHTML=''; return;
-  }
-  // Quantos bilhetes faltam para o resultado deixar de ser ruído
-  const alvo=0.10; // distinguir +10% de zero
-  const nNec=Math.ceil(Math.pow(1.96*mt.sd/alvo,2));
-  const pronto=mt.significativo&&mt.roi>0;
-  indicador.innerHTML=`
-    <div class="grid2">
-      <div class="kpi"><div class="v ${mt.roi>=0?'pos':'neg'}">${mt.roi.toFixed(1)}%</div><div class="l">ROI (n=${mt.n})</div></div>
-      <div class="kpi"><div class="v" style="font-size:14px;">[${mt.lo.toFixed(0)}% , ${mt.hi.toFixed(0)}%]</div><div class="l">Faixa provável do ROI real</div></div>
-    </div>
-    <div class="msg ${pronto?'ok':'wa'}">
-      ${pronto
-        ? `<b>RESULTADO SIGNIFICATIVO.</b> Com ${mt.n} bilhetes, a faixa provável do ROI real não inclui o zero. Isso é evidência de vantagem — não garantia.`
-        : `<b>EM CALIBRAÇÃO.</b> Com ${mt.n} bilhetes, a faixa provável do ROI vai de ${mt.lo.toFixed(0)}% a ${mt.hi.toFixed(0)}% e passa pelo zero: o resultado ainda não se distingue de sorte. Seriam necessários cerca de <b>${nNec.toLocaleString('pt-BR')}</b> bilhetes nesse padrão de variação para o sinal aparecer.`}
-    </div>
-    <p class="sm">A faixa acima é o que decide, não a média. Com odds altas a variação é enorme, e médias de poucas dezenas de bilhetes sobem e descem por acaso.</p>`;
-
-  calib.innerHTML=`<div class="grid3">
-      <div class="kpi"><div class="v ${mt.brier<0.20?'pos':mt.brier<0.25?'warn':'neg'}">${mt.brier.toFixed(4)}</div><div class="l">Brier<br>(menor é melhor)</div></div>
-      <div class="kpi"><div class="v">${mt.ll.toFixed(3)}</div><div class="l">Log loss</div></div>
-      <div class="kpi"><div class="v ${mt.skill>0?'pos':'neg'}">${mt.skill>=0?'+':''}${mt.skill.toFixed(1)}%</div><div class="l">Ganho sobre a taxa média</div></div>
-      <div class="kpi"><div class="v">${mt.previsto.toFixed(1)}%</div><div class="l">Chance prevista (média)</div></div>
-      <div class="kpi"><div class="v">${mt.observado.toFixed(1)}%</div><div class="l">Acerto observado</div></div>
-      <div class="kpi"><div class="v ${Math.abs(mt.vies)<4?'pos':'neg'}">${mt.vies>=0?'+':''}${mt.vies.toFixed(1)}</div><div class="l">Viés (p.p.)</div></div>
-    </div>
-    <div class="msg ${Math.abs(mt.vies)<4?'ok':'wa'}">
-      ${Math.abs(mt.vies)<4 ? 'As chances previstas batem com o que acontece.'
-        : mt.vies>0 ? `O sistema prevê ${mt.vies.toFixed(1)} pontos a mais do que acontece — otimista.`
-                    : `O sistema prevê ${Math.abs(mt.vies).toFixed(1)} pontos a menos do que acontece — pessimista.`}
-      ${mt.n<200?' Com menos de 200 bilhetes esse desvio ainda é, em boa parte, acaso — não vale corrigir o motor por causa dele.':''}
-    </div>`;
-
-  // Por ciclos de 20
-  const f=sim.filter(x=>x.status!=='Aberto').sort((a,b)=>new Date(a.data)-new Date(b.data));
-  const blocos=[];
-  for(let i=0;i<f.length;i+=20) blocos.push(f.slice(i,i+20));
-  ciclos.innerHTML = blocos.length ? blocos.map((b,i)=>{
-    const g=b.filter(x=>x.status==='Green').length;
-    const l=b.reduce((s,x)=>s+lucro(x),0);
-    const ap=b.reduce((s,x)=>s+x.stake,0);
-    return `<div class="row" style="justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);">
-      <span class="sm">Ciclo ${i+1} (${b.length} bilhetes)</span>
-      <span class="sm">${g}/${b.length} · <b class="${l>=0?'pos':'neg'}">${ap?(l/ap*100).toFixed(0):'0'}%</b></span></div>`;
-  }).join('')+'<p class="sm" style="margin-top:8px;">Blocos de 20 oscilam muito. Subida de um ciclo para o outro quase sempre é variação normal, não aprendizado.</p>'
-    : '<p>Nenhum bilhete liquidado.</p>';
-
-  // Combinações mais frequentes
-  const combos={};
-  f.forEach(x=>{
-    const k=(x.linhas||[]).slice().sort().join(' + ');
-    if(!k) return;
-    combos[k]=combos[k]||{n:0,g:0,l:0,ap:0};
-    combos[k].n++; if(x.status==='Green')combos[k].g++;
-    combos[k].l+=lucro(x); combos[k].ap+=x.stake;
-  });
-  const top=Object.entries(combos).filter(([,c])=>c.n>=3)
-    .sort((a,b)=>(b[1].l/b[1].ap)-(a[1].l/a[1].ap)).slice(0,10);
-  topCombos.innerHTML = top.length ? top.map(([k,c])=>
-    `<div style="padding:7px 0;border-bottom:1px solid var(--border);">
-      <div class="sm">${k}</div>
-      <div class="row" style="justify-content:space-between;margin-top:3px;">
-        <span class="sm">${c.g}/${c.n} acertos</span>
-        <span class="sm ${c.l>=0?'pos':'neg'}">${(c.l/c.ap*100).toFixed(0)}% de retorno</span></div>
-    </div>`).join('')+'<p class="sm" style="margin-top:8px;">Atenção: combinações com 3 a 10 ocorrências não provam nada. Escolher a de melhor retorno passado costuma ser escolher a de maior sorte passada.</p>'
-    : '<p>Ainda não há combinações com pelo menos 3 ocorrências liquidadas.</p>';
-}
-
-/* ==========================================================================
-   RESULTADOS AUTOMÁTICOS
-   O endpoint /scores devolve o placar de jogos recém-encerrados, então não é
-   preciso digitar nada para os mercados que dependem só do placar.
-   ========================================================================== */
-async function buscarPlacares(sport,dias){
-  const evs=await chamar(`${ODDS_BASE}/sports/${sport}/scores/?daysFrom=${dias||3}&apiKey=${ODDS_KEY}`,60);
-  const out={};
-  evs.filter(e=>e.completed&&e.scores).forEach(e=>{
-    const h=e.scores.find(s=>s.name===e.home_team);
-    const a=e.scores.find(s=>s.name===e.away_team);
-    if(h&&a) out[`${normNome(e.home_team)}|${normNome(e.away_team)}`]=
-      {casa:+h.score, fora:+a.score, id:e.id};
-  });
-  return out;
-}
-
-/* ==========================================================================
-   MERCADOS ADICIONAIS (escanteios, cartões, placar exato, jogadores)
-   Vivem no endpoint /events/{id}/odds, um jogo por vez. O custo em créditos é
-   multiplicado pelo número de mercados pedidos, então só buscamos sob demanda.
-   Player props de futebol existem apenas para EPL, Ligue 1, Bundesliga,
-   Serie A, La Liga e MLS, e só de casas dos EUA.
-   ========================================================================== */
-const MERC_EXTRA=['alternate_totals_corners','alternate_totals_cards',
-                  'correct_score','double_chance','btts','halftime_fulltime'];
-const MERC_JOGADOR=['player_goal_scorer_anytime','player_shots_on_target',
-                    'player_to_receive_card','player_assists'];
-const LIGAS_PROPS=['soccer_epl','soccer_france_ligue_one','soccer_germany_bundesliga',
-                   'soccer_italy_serie_a','soccer_spain_la_liga','soccer_usa_mls'];
-
-async function buscarExtras(sport,eventId,comJogadores){
-  const mk=[...MERC_EXTRA, ...(comJogadores&&LIGAS_PROPS.includes(sport)?MERC_JOGADOR:[])];
-  const regs = comJogadores&&LIGAS_PROPS.includes(sport) ? 'eu,uk,us' : 'eu,uk';
-  // Mercados extras custam ~6 créditos por jogo: cache longo, de 6 horas
-  const e=await chamar(`${ODDS_BASE}/sports/${sport}/events/${eventId}/odds?regions=${regs}&markets=${mk.join(',')}&oddsFormat=decimal&apiKey=${ODDS_KEY}`,360);
-
-  /* Cada linha vira um mercado com nome legível e a regra de conferência.
-     Escanteios, cartões e jogadores NÃO são função do placar, então guardam
-     o campo `confere` indicando qual dado o usuário precisa informar. */
-  const extras=[];
-  const vistos=new Set();
-  (e.bookmakers||[]).forEach(bk=>(bk.markets||[]).forEach(m=>{
-    (m.outcomes||[]).forEach(o=>{
-      let nome=null, confere=null, regra=null;
-      const pt=o.point;
-      if(m.key==='alternate_totals_corners'&&pt!=null){
-        nome=`${o.name==='Over'?'Mais':'Menos'} de ${pt} escanteios`;
-        confere='escanteios';
-        regra=o.name==='Over'?(k=>k>pt):(k=>k<pt);
-      } else if(m.key==='alternate_totals_cards'&&pt!=null){
-        nome=`${o.name==='Over'?'Mais':'Menos'} de ${pt} cartões`;
-        confere='cartoes';
-        regra=o.name==='Over'?(k=>k>pt):(k=>k<pt);
-      } else if(m.key==='correct_score'){
-        nome=`Placar exato ${o.name}`; confere='placar';
-        const mm=String(o.name).match(/(\d+)\D+(\d+)/);
-        if(mm) regra=(i,j)=>i===+mm[1]&&j===+mm[2];
-      } else if(m.key==='double_chance'){
-        nome=`Dupla chance: ${o.name}`; confere='placar';
-      } else if(m.key==='halftime_fulltime'){
-        nome=`Intervalo/Final: ${o.name}`; confere='manual';
-      } else if(m.key==='btts'){
-        nome=o.name==='Yes'?'Ambos marcam':'Ambos NÃO marcam'; confere='placar';
-      } else if(m.key==='player_goal_scorer_anytime'){
-        nome=`${o.description||o.name} marca`; confere='marcadores';
-      } else if(m.key==='player_shots_on_target'&&pt!=null){
-        nome=`${o.description||o.name}: ${o.name==='Over'?'mais':'menos'} de ${pt} chutes ao gol`;
-        confere='manual';
-      } else if(m.key==='player_to_receive_card'){
-        nome=`${o.description||o.name} recebe cartão`; confere='manual';
-      } else if(m.key==='player_assists'&&pt!=null){
-        nome=`${o.description||o.name}: ${o.name==='Over'?'mais':'menos'} de ${pt} assistências`;
-        confere='manual';
-      }
-      if(!nome||vistos.has(nome)) return;
-      vistos.add(nome);
-      extras.push({nome, odd:o.price, casa:bk.key, confere, regra, ponto:pt});
-    });
-  }));
-  return extras;
-}
-
-/* ---------- Armazenamento ---------- */
-function load(){
-  try{ const c=JSON.parse(localStorage.getItem(LS_CFG)||'null'); if(c) cfg={...cfg,...c}; }catch(e){}
-  try{ const h=JSON.parse(localStorage.getItem(LS_HIST)||'null');
-    if(Array.isArray(h)) hist=h; else { hist=semearLegado(); salvarHist(); }
-  }catch(e){ hist=semearLegado(); }
-  cBanca.value=cfg.banca;
-}
-function salvarHist(){ try{ localStorage.setItem(LS_HIST,JSON.stringify(hist)); }catch(e){} }
-function salvarCfg(){
-  const vb=parseFloat(cBanca.value);
-  if(isNaN(vb)||vb<=0){ alert('Banca deve ser um número maior que zero.'); cBanca.value=cfg.banca; return; }
-  cfg.banca=vb;
-
-  try{ localStorage.setItem(LS_CFG,JSON.stringify(cfg)); }catch(e){}
-  render();
-}
-
-/* ---------- Distribuição de placares ---------- */
-const MAXG=10, RHO=-0.13;
-const fat=n=>{let r=1;for(let i=2;i<=n;i++)r*=i;return r;};
-const pois=(l,k)=>Math.pow(l,k)*Math.exp(-l)/fat(k);
-function tau(i,j,lh,la){
-  if(i===0&&j===0) return 1-lh*la*RHO;
-  if(i===0&&j===1) return 1+lh*RHO;
-  if(i===1&&j===0) return 1+la*RHO;
-  if(i===1&&j===1) return 1-RHO;
-  return 1;
-}
-function grade(lh,la){
-  const g=[]; let s=0;
-  for(let i=0;i<=MAXG;i++){ g[i]=[];
-    for(let j=0;j<=MAXG;j++){ const p=pois(lh,i)*pois(la,j)*Math.max(0,tau(i,j,lh,la)); g[i][j]=p; s+=p; } }
-  for(let i=0;i<=MAXG;i++) for(let j=0;j<=MAXG;j++) g[i][j]/=s;
-  return g;
-}
-
-/* Cada mercado é uma regra sobre o placar (gols do mandante, gols do visitante).
-   É isso que permite avaliar o bilhete automaticamente depois do jogo. */
-const MERCADOS={
-  'Mais de 0.5 gol':      (i,j)=>i+j>=1,
-  'Mais de 1.5 gols':     (i,j)=>i+j>=2,
-  'Mais de 2.5 gols':     (i,j)=>i+j>=3,
-  'Mais de 3.5 gols':     (i,j)=>i+j>=4,
-  'Menos de 2.5 gols':    (i,j)=>i+j<3,
-  'Menos de 3.5 gols':    (i,j)=>i+j<4,
-  'Menos de 4.5 gols':    (i,j)=>i+j<5,
-  'Ambos marcam':         (i,j)=>i>0&&j>0,
-  'Ambos NÃO marcam':     (i,j)=>i===0||j===0,
-  'Mandante vence':       (i,j)=>i>j,
-  'Empate':               (i,j)=>i===j,
-  'Visitante vence':      (i,j)=>j>i,
-  'Mandante não perde':   (i,j)=>i>=j,
-  'Visitante não perde':  (i,j)=>j>=i,
-  'Sai gol dos dois lados ou 3+': (i,j)=>(i>0&&j>0)||i+j>=3,
-  'Mandante marca':       (i,j)=>i>=1,
-  'Visitante marca':      (i,j)=>j>=1,
-  'Mandante marca 2+':    (i,j)=>i>=2,
-  'Visitante marca 2+':   (i,j)=>j>=2,
-  'Mandante vence por 2+':(i,j)=>i-j>=2,
-  'Visitante vence por 2+':(i,j)=>j-i>=2,
-  'Mandante vence por 3+':(i,j)=>i-j>=3,
-  /* Handicaps sem equivalente exato entre os mercados acima. As linhas
-     +0.5 foram removidas por serem idênticas a "não perde", e -0.5 por serem
-     idênticas a "vence" — manter as duas versões só inflava a lista. */
-  'Handicap mandante +1.5':(i,j)=>j-i<=1,
-  'Handicap visitante +1.5':(i,j)=>i-j<=1,
-  'Placar 1-0':(i,j)=>i===1&&j===0,
-  'Placar 2-0':(i,j)=>i===2&&j===0,
-  'Placar 2-1':(i,j)=>i===2&&j===1,
-  'Placar 1-1':(i,j)=>i===1&&j===1,
-  'Placar 0-0':(i,j)=>i===0&&j===0,
-  'Placar 0-1':(i,j)=>i===0&&j===1,
-  'Placar 3-1':(i,j)=>i===3&&j===1,
-  'Mais de 4.5 gols':(i,j)=>i+j>=5,
-  'Menos de 1.5 gols':(i,j)=>i+j<2,
-  'Menos de 4.5 gols':(i,j)=>i+j<5,
-};
-function prob(nome,g,extras){
-  const f=MERCADOS[nome];
-  if(!f){ // mercado que não depende do placar: usa a probabilidade da própria odd
-    const e=extras&&extras.find(x=>x.nome===nome);
-    return e?e.p:null;
-  }
-  let p=0;
-  for(let i=0;i<=MAXG;i++) for(let j=0;j<=MAXG;j++) if(f(i,j)) p+=g[i][j];
-  return p;
-}
-/* Probabilidade de várias linhas juntas: soma dos placares em que TODAS valem.
-   Não é o produto das individuais, porque mercados do mesmo jogo andam juntos. */
-function probJunta(nomes,g,extras){
-  /* Linhas de placar são somadas na grade (exato). Linhas de escanteios,
-     cartões e jogadores não dependem do placar, então entram por
-     multiplicação — uma aproximação, já que há alguma correlação entre gols e
-     escanteios que não conseguimos medir sem dados históricos. */
-  const doPlacar=nomes.filter(n=>MERCADOS[n]);
-  const outras=nomes.filter(n=>!MERCADOS[n]);
-  let p=1;
-  if(doPlacar.length){
-    p=0;
-    for(let i=0;i<=MAXG;i++) for(let j=0;j<=MAXG;j++)
-      if(doPlacar.every(n=>MERCADOS[n](i,j))) p+=g[i][j];
-  }
-  if(outras.length&&extras){
-    outras.forEach(n=>{ const e=extras.find(x=>x.nome===n); if(e) p*=e.p; });
-  }
-  return p;
-}
-
-/* ---------- Odds -> probabilidade real ---------- */
-function semVig(odds){
-  const inv=odds.map(o=>1/o); let lo=0.5,hi=2;
-  for(let i=0;i<60;i++){ const k=(lo+hi)/2;
-    (inv.reduce((a,x)=>a+Math.pow(x,k),0)>1)?lo=k:hi=k; }
-  const k=(lo+hi)/2, v=inv.map(x=>Math.pow(x,k)), s=v.reduce((a,b)=>a+b,0);
-  return v.map(x=>x/s);
-}
-
-/* Encontra os gols esperados de cada time que reproduzem as probabilidades
-   do mercado. Busca em grade e depois refina — robusto e rápido o bastante. */
-function ajustarGols(alvo){
-  const err=(lh,la)=>{
-    const g=grade(lh,la); let e=0;
-    if(alvo.casa!=null)  e+=Math.pow(prob('Mandante vence',g)-alvo.casa,2);
-    if(alvo.fora!=null)  e+=Math.pow(prob('Visitante vence',g)-alvo.fora,2);
-    if(alvo.over25!=null)e+=Math.pow(prob('Mais de 2.5 gols',g)-alvo.over25,2);
-    if(alvo.btts!=null)  e+=Math.pow(prob('Ambos marcam',g)-alvo.btts,2);
-    return e;
-  };
-  let bh=1.3,ba=1.1,be=Infinity;
-  for(let lh=0.20;lh<=3.8;lh+=0.10) for(let la=0.20;la<=3.8;la+=0.10){
-    const e=err(lh,la); if(e<be){ be=e; bh=lh; ba=la; } }
-  for(const passo of [0.04,0.01,0.002]){
-    for(let it=0;it<60;it++){
-      let mov=false;
-      for(const [dh,da] of [[passo,0],[-passo,0],[0,passo],[0,-passo]]){
-        const nh=Math.max(0.05,bh+dh), na=Math.max(0.05,ba+da), e=err(nh,na);
-        if(e<be){ bh=nh; ba=na; be=e; mov=true; }
-      }
-      if(!mov) break;
-    }
-  }
-  return {lh:+bh.toFixed(3),la:+ba.toFixed(3),erro:be};
-}
-
-/* ---------- CASAS DE APOSTA ----------
-   A The Odds API cobre as regiões US, UK, EU, AU, CA, FR, SE e FI — não há
-   região Brasil, e a Bet365 só existe nela como bet365_au (plano pago, apenas
-   futebol australiano e rúgbi). Então usamos as casas cobertas que TAMBÉM têm
-   operação no Brasil. Importante: são as odds da operação internacional; a
-   operação brasileira das mesmas marcas costuma ter preço parecido, mas não
-   idêntico. Confira sempre no site antes de apostar. */
-const CASAS_BR={
-  betano_uk:'Betano', betfair_ex_uk:'Betfair Exchange', betfair_ex_eu:'Betfair Exchange',
-  betfair_sb_uk:'Betfair', betsson:'Betsson', betway:'Betway', onexbet:'1xBet',
-  pinnacle:'Pinnacle', williamhill:'William Hill', sport888:'888sport',
-  betvictor:'Bet Victor', leovegas:'LeoVegas', unibet_uk:'Unibet',
-  marathonbet:'Marathon Bet', nordicbet:'NordicBet', coolbet:'Coolbet',
-  betclic_fr:'Betclic', betsafe:'Betsafe',
-};
-/* Exchanges cobram comissão sobre o lucro, então a odd bruta engana. */
-const COMISSAO={betfair_ex_uk:0.065, betfair_ex_eu:0.065, matchbook:0.015, smarkets:0.02};
-const oddLiquida=(odd,casa)=>{
-  const c=COMISSAO[casa]; if(!c) return odd;
-  return +(1+(odd-1)*(1-c)).toFixed(3);
-};
-
-/* A API informa a cota nos cabeçalhos de cada resposta. Guardamos para poder
-   dizer se o 401 veio de chave errada ou de créditos acabados. */
-function msgAuth(m){
-  const det=m.slice(5);
-  if(cota.checado&&cota.restantes<=0)
-    return `Créditos da API esgotados (${cota.usados} usados neste mês). O plano gratuito da The Odds API dá 500 requisições mensais, que renovam na data de assinatura. Para continuar antes disso é preciso um plano pago em the-odds-api.com.`;
-  if(/quota|exceeded|usage/i.test(det))
-    return `Cota mensal esgotada. ${det}`;
-  if(/key/i.test(det))
-    return `Chave de API não reconhecida. ${det} Confira a chave em the-odds-api.com.`;
-  return `A API recusou a requisição${det?': '+det:''}. Pode ser chave inválida ou cota esgotada — verifique em the-odds-api.com.`;
-}
-let cota={restantes:null, usados:null, checado:false};
-function lerCota(r){
-  const rest=r.headers.get('x-requests-remaining');
-  const usad=r.headers.get('x-requests-used');
-  if(rest!=null){ cota.restantes=+rest; cota.usados=+usad; cota.checado=true; mostrarCota(); }
-}
-function mostrarCota(){
-  if(!cota.checado) return;
-  const el=document.getElementById('cotaInfo');
-  if(!el) return;
-  const baixo=cota.restantes<50;
-  el.innerHTML=`<div class="msg ${cota.restantes<=0?'er':baixo?'wa':'nt'}">
-    Créditos da API: <b>${cota.restantes}</b> restantes neste mês (${cota.usados} usados).
-    ${economizados?`<br>O cache já evitou <b>${economizados}</b> requisição(ões) nesta sessão.`:''}
-    ${cota.restantes<=0?'<br>Cota esgotada. Use o <b>modo manual</b> abaixo para continuar operando sem API.'
-     :baixo?'<br>Pouco crédito. Mercados extras consomem cerca de 6 por jogo — deixe desligado.':''}</div>`;
-}
-/* Cache de requisições. Cada chamada repetida à mesma URL dentro da janela
-   reaproveita o resultado em vez de gastar um crédito novo. É o que faz 500
-   requisições mensais renderem. */
-const CACHE_PFX='qf_api_';
-let economizados=0;
-function cacheLer(url,minutos){
-  try{
-    const c=JSON.parse(localStorage.getItem(CACHE_PFX+btoa(url).slice(0,60))||'null');
-    if(c && Date.now()-c.ts < minutos*60000){ economizados++; return c.dados; }
-  }catch(e){}
-  return null;
-}
-function cacheGravar(url,dados){
-  try{
-    localStorage.setItem(CACHE_PFX+btoa(url).slice(0,60), JSON.stringify({ts:Date.now(),dados}));
-  }catch(e){
-    // Armazenamento cheio: limpa o cache antigo e tenta de novo
-    Object.keys(localStorage).filter(k=>k.startsWith(CACHE_PFX)).forEach(k=>localStorage.removeItem(k));
-    try{ localStorage.setItem(CACHE_PFX+btoa(url).slice(0,60), JSON.stringify({ts:Date.now(),dados})); }catch(e2){}
-  }
-}
-function limparCache(){
-  Object.keys(localStorage).filter(k=>k.startsWith(CACHE_PFX)).forEach(k=>localStorage.removeItem(k));
-  economizados=0; mostrarCota();
-}
-
-async function chamar(url,minutosCache){
-  const emCache = minutosCache ? cacheLer(url,minutosCache) : null;
-  if(emCache) return emCache;
-  const r=await fetch(url);
-  lerCota(r);
-  if(r.status===401){
-    let detalhe='';
-    try{ const j=await r.json(); detalhe=j.message||''; }catch(e){}
-    throw new Error('AUTH:'+detalhe);
-  }
-  if(r.status===429) throw new Error('COTA');
-  if(r.status===422) throw new Error('422');
-  if(!r.ok) throw new Error('HTTP '+r.status);
-  const dados=await r.json();
-  if(minutosCache) cacheGravar(url,dados);
-  return dados;
-}
-async function buscar(sport,markets){
-  // Odds mudam devagar antes do jogo: 20 minutos de cache não atrapalham
-  return chamar(`${ODDS_BASE}/sports/${sport}/odds?regions=eu,uk&markets=${markets}&oddsFormat=decimal&apiKey=${ODDS_KEY}`,20);
-}
-async function carregarJogos(sport){
-  let evs;
-  try{ evs=await buscar(sport,'h2h,totals'); }
-  catch(e){
-    if(String(e.message).startsWith('422')) evs=await buscar(sport,'h2h');
-    else throw e;
-  }
-  return evs.map(e=>{
-    /* porCasa[chaveDaCasa] = {casa, empate, fora, over25, under25}
-       Guardamos cada casa separadamente porque um bilhete múltiplo é feito
-       numa casa só — não dá para pegar a melhor odd de cada linha em casas
-       diferentes e somar. */
-    const porCasa={}, todas={};
-    (e.bookmakers||[]).forEach(bk=>{
-      const alvo=porCasa[bk.key]=porCasa[bk.key]||{};
-      (bk.markets||[]).forEach(m=>{
-        if(m.key==='h2h') m.outcomes.forEach(o=>{
-          const k = o.name===e.home_team?'casa' : o.name===e.away_team?'fora' : 'empate';
-          alvo[k]=oddLiquida(o.price,bk.key);
-          (todas[k]=todas[k]||[]).push(o.price);
-        });
-        if(m.key==='totals') m.outcomes.forEach(o=>{
-          if(o.point!==2.5) return;
-          const k=o.name==='Over'?'over25':'under25';
-          alvo[k]=oddLiquida(o.price,bk.key);
-          (todas[k]=todas[k]||[]).push(o.price);
-        });
-      });
-    });
-    const med=a=>a&&a.length?+(a.reduce((x,y)=>x+y,0)/a.length).toFixed(2):null;
-    const media={}; ['casa','empate','fora','over25','under25'].forEach(k=>media[k]=med(todas[k]));
-    const disponiveis=Object.keys(porCasa).filter(k=>CASAS_BR[k]&&porCasa[k].casa);
-    return {id:e.id, casa:e.home_team, fora:e.away_team, inicio:e.commence_time,
-            porCasa, media, casasBR:disponiveis,
-            o:{casa:{odd:media.casa,daCasa:false}, empate:{odd:media.empate,daCasa:false},
-               fora:{odd:media.fora,daCasa:false}, over25:{odd:media.over25,daCasa:false},
-               under25:{odd:media.under25,daCasa:false}},
-            casas:(e.bookmakers||[]).length};
-  }).filter(j=>j.media.casa&&j.media.empate&&j.media.fora)
-    .sort((a,b)=>new Date(a.inicio)-new Date(b.inicio));
-}
-
-/* Para um conjunto de linhas, descobre qual casa paga mais pelo bilhete
-   INTEIRO. É a pergunta certa: você monta a múltipla em uma casa só. */
-function melhorCasaParaBilhete(j, linhas){
-  const cotadas={'Mandante vence':'casa','Empate':'empate','Visitante vence':'fora',
-                 'Mais de 2.5 gols':'over25','Menos de 2.5 gols':'under25'};
-  const resultados=[];
-  j.casasBR.forEach(ck=>{
-    const oc=j.porCasa[ck];
-    let produto=1, cotadasNaCasa=0;
-    linhas.forEach(l=>{
-      const campo=cotadas[l.nome];
-      if(campo && oc[campo]){ produto*=oc[campo]; cotadasNaCasa++; }
-      else produto*=l.odd; // linha não cotada: usa a estimativa do modelo
-    });
-    resultados.push({chave:ck, nome:CASAS_BR[ck], produto:+produto.toFixed(2),
-                     cotadas:cotadasNaCasa, comissao:!!COMISSAO[ck]});
-  });
-  resultados.sort((a,b)=>b.produto-a.produto);
-  return resultados;
-}
-
-/* ---------- Montagem do bilhete ---------- */
-function analisarJogo(j){
-  const o=j.o;
-  const p3=semVig([o.casa.odd,o.empate.odd,o.fora.odd]);
-  const alvo={casa:p3[0],fora:p3[2]};
-  if(o.over25.odd&&o.under25.odd) alvo.over25=semVig([o.over25.odd,o.under25.odd])[0];
-  const {lh,la,erro}=ajustarGols(alvo);
-  const g=grade(lh,la);
-  const reais={'Mandante vence':o.casa,'Empate':o.empate,'Visitante vence':o.fora,
-               'Mais de 2.5 gols':o.over25,'Menos de 2.5 gols':o.under25};
-  const mercados=Object.keys(MERCADOS).map(n=>{
-    const p=prob(n,g);
-    const r=reais[n];
-    if(r&&r.odd) return {nome:n,p,odd:r.odd,daCasa:r.daCasa,estimada:false};
-    return {nome:n,p,odd:+(1/p*(1-MARGEM_SIMPLES)).toFixed(2),daCasa:false,estimada:true};
-  });
-  return {lh,la,erro,g,mercados};
-}
-
-function combinar(arr,k){
-  const out=[];
-  (function go(i,ac){ if(ac.length===k){out.push(ac.slice());return;}
-    for(let x=i;x<arr.length;x++){ac.push(arr[x]);go(x+1,ac);ac.pop();} })(0,[]);
-  return out;
-}
-
-/* Escolhe a combinação de maior valor esperado dentro da faixa de odd.
-   O EV usa a probabilidade conjunta real — que é maior que o produto das
-   individuais quando as linhas são positivamente correlacionadas. É daí que
-   sai qualquer vantagem em múltipla do mesmo jogo. */
-/* Duas linhas são redundantes quando uma já implica a outra ("Mais de 3.5"
-   implica "Mais de 2.5"). A probabilidade conjunta delas é quase igual à da
-   linha mais restritiva, mas o produto das odds sugeriria um retorno enorme.
-   Nenhuma casa paga por linha redundante, então essas combinações saem. */
-/* Uma combinação pode não ser redundante entre si e ainda assim ser armadilha:
-   "Mandante não perde" + "Visitante não perde" dá exatamente o empate, mas o
-   produto das duas odds paga bem menos do que o empate cotado direto.
-   Se o bilhete equivale a um mercado simples que existe e paga mais, ele sai. */
-function equivaleAMercadoSimples(nomes,mercados,g,oddProduto){
-  if(!nomes.every(n=>MERCADOS[n])) return null;
-  // O bilhete inteiro equivale a um mercado simples que paga mais?
-  const p=probJunta(nomes,g);
-  for(const m of mercados){
-    if(nomes.includes(m.nome)) continue;
-    if(Math.abs(prob(m.nome,g)-p)>1e-6) continue;
-    if(m.odd>oddProduto*1.02) return m;
-  }
-  // Algum PAR dentro do bilhete gasta duas linhas para dizer o que um único
-  // mercado diria melhor? Vale mesmo em bilhetes de 3+ linhas.
-  for(let i=0;i<nomes.length;i++) for(let j=i+1;j<nomes.length;j++){
-    const pp=probJunta([nomes[i],nomes[j]],g);
-    const oi=mercados.find(m=>m.nome===nomes[i]), oj=mercados.find(m=>m.nome===nomes[j]);
-    if(!oi||!oj) continue;
-    const prodPar=oi.odd*oj.odd;
-    for(const m of mercados){
-      if(m.nome===nomes[i]||m.nome===nomes[j]) continue;
-      if(Math.abs(prob(m.nome,g)-pp)>1e-6) continue;
-      if(m.odd>prodPar*1.02) return m;
-    }
-  }
-  return null;
-}
-
-function redundante(a,b,g,extras){
-  // Duas linhas do mesmo grupo (escanteios com escanteios, cartões com
-  // cartões) são tratadas como redundantes: só uma faz sentido no bilhete.
-  const grupo=n=>/escanteios/.test(n)?'esc':/cartões/.test(n)?'car':
-                 / marca$/.test(n)?'marc:'+n:/Placar exato/.test(n)?'placar':null;
-  const ga=grupo(a), gb=grupo(b);
-  if(ga&&gb&&ga===gb) return true;
-  if(!MERCADOS[a]||!MERCADOS[b]) return false; // grupos diferentes: independentes
-  const pa=prob(a,g,extras), pb=prob(b,g,extras), pab=probJunta([a,b],g,extras);
-  if(pa==null||pb==null||pab==null) return false;
-  const menor=Math.min(pa,pb);
-  return menor>0 && pab/menor>0.97;
-}
-function temRedundancia(nomes,g,extras){
-  for(let i=0;i<nomes.length;i++) for(let j=i+1;j<nomes.length;j++)
-    if(redundante(nomes[i],nomes[j],g,extras)) return true;
-  return false;
-}
-
-/* A odd de uma múltipla do mesmo jogo NÃO é o produto das odds simples.
-   A casa precifica pela probabilidade conjunta real e aplica margem em cima —
-   é assim que funciona o Criar Aposta / Bet Builder. Multiplicar as simples
-   produziria uma odd fantasiosa e um lucro esperado que não existe.
-   Margem de múltipla é maior que a de mercado simples. */
-const MARGEM_SIMPLES=0.06, MARGEM_MULTIPLA=0.11;
-const oddBetBuilder=p=>+(1/p*(1-MARGEM_MULTIPLA)).toFixed(2);
-
-/* Procura em vários tamanhos de bilhete e devolve a melhor. Mais linhas só
-   vencem se realmente aumentarem a chance dentro da faixa de odd pedida. */
-function melhorEntre(an,tamanhos,oddMin,oddMax){
-  let melhor=null;
-  tamanhos.forEach(k=>{
-    const b=montar(an,k,oddMin,oddMax);
-    if(b && (!melhor||b.p>melhor.p)) melhor=b;
-  });
-  return melhor;
-}
-
-function montar(an,nLinhas,oddMin,oddMax){
-  const cand=an.mercados.filter(m=>m.p>0.30&&m.p<0.97);
-  let melhor=null;
-  combinar(cand,nLinhas).forEach(c=>{
-    const nomes=c.map(m=>m.nome);
-    const p=probJunta(nomes,an.g);
-    if(p<0.04) return;
-    if(temRedundancia(nomes,an.g)) return;
-    const produto=+c.reduce((a,m)=>a*m.odd,1).toFixed(2);
-    if(equivaleAMercadoSimples(nomes,an.mercados,an.g,produto)) return;
-    const odd=oddBetBuilder(p);
-    if(odd<oddMin||odd>oddMax) return;
-    // Entre as combinações que caem na faixa de odd pedida, a melhor é a de
-    // maior probabilidade de bater.
-    if(!melhor||p>melhor.p) melhor={linhas:c,nomes,p,odd,produto};
-  });
-  return melhor;
-}
-
-/* ---------- Competições disponíveis ----------
-   Em vez de manter uma lista fixa que envelhece, perguntamos à API quais
-   competições estão ativas neste momento. Requisições a /sports não descontam
-   da cota mensal. */
-const NOMES_PT={
-  soccer_brazil_campeonato:'Brasileirão Série A', soccer_brazil_serie_b:'Brasileirão Série B',
-  soccer_conmebol_copa_libertadores:'Copa Libertadores', soccer_conmebol_copa_sudamericana:'Copa Sudamericana',
-  soccer_conmebol_copa_america:'Copa América',
-  soccer_argentina_primera_division:'Primera División (Argentina)',
-  soccer_chile_campeonato:'Primera División (Chile)',
-  soccer_epl:'Premier League', soccer_efl_champ:'Championship (Inglaterra)',
-  soccer_england_league1:'League One', soccer_england_league2:'League Two',
-  soccer_fa_cup:'FA Cup', soccer_england_efl_cup:'Copa da Liga Inglesa',
-  soccer_spain_la_liga:'La Liga', soccer_spain_segunda_division:'La Liga 2',
-  soccer_spain_copa_del_rey:'Copa del Rey',
-  soccer_italy_serie_a:'Serie A (Itália)', soccer_italy_serie_b:'Serie B (Itália)',
-  soccer_italy_coppa_italia:'Copa da Itália',
-  soccer_germany_bundesliga:'Bundesliga', soccer_germany_bundesliga2:'Bundesliga 2',
-  soccer_germany_liga3:'3. Liga', soccer_germany_dfb_pokal:'Copa da Alemanha',
-  soccer_france_ligue_one:'Ligue 1', soccer_france_ligue_two:'Ligue 2',
-  soccer_france_coupe_de_france:'Copa da França',
-  soccer_portugal_primeira_liga:'Primeira Liga (Portugal)',
-  soccer_netherlands_eredivisie:'Eredivisie', soccer_belgium_first_div:'Jupiler Pro (Bélgica)',
-  soccer_turkey_super_league:'Süper Lig (Turquia)', soccer_greece_super_league:'Super League (Grécia)',
-  soccer_switzerland_superleague:'Super League (Suíça)', soccer_austria_bundesliga:'Bundesliga (Áustria)',
-  soccer_denmark_superliga:'Superliga (Dinamarca)', soccer_norway_eliteserien:'Eliteserien (Noruega)',
-  soccer_sweden_allsvenskan:'Allsvenskan (Suécia)', soccer_sweden_superettan:'Superettan (Suécia)',
-  soccer_finland_veikkausliiga:'Veikkausliiga (Finlândia)', soccer_poland_ekstraklasa:'Ekstraklasa (Polônia)',
-  soccer_russia_premier_league:'Premier League (Rússia)', soccer_spl:'Premiership (Escócia)',
-  soccer_league_of_ireland:'Liga da Irlanda',
-  soccer_uefa_champs_league:'Champions League', soccer_uefa_europa_league:'Europa League',
-  soccer_uefa_europa_conference_league:'Conference League',
-  soccer_uefa_champs_league_qualification:'Champions League (qualificatórias)',
-  soccer_uefa_nations_league:'Liga das Nações', soccer_uefa_euro_qualification:'Eliminatórias da Euro',
-  soccer_usa_mls:'MLS', soccer_mexico_ligamx:'Liga MX',
-  soccer_concacaf_leagues_cup:'Leagues Cup', soccer_concacaf_gold_cup:'Copa Ouro',
-  soccer_japan_j_league:'J League', soccer_korea_kleague1:'K League 1',
-  soccer_china_superleague:'Super League (China)', soccer_australia_aleague:'A-League',
-  soccer_saudi_arabia_pro_league:'Saudi Pro League',
-  soccer_fifa_world_cup:'Copa do Mundo', soccer_fifa_club_world_cup:'Mundial de Clubes',
-  soccer_fifa_world_cup_qualifiers_south_america:'Eliminatórias Sul-Americanas',
-  soccer_fifa_world_cup_qualifiers_europe:'Eliminatórias Europeias',
-  soccer_africa_cup_of_nations:'Copa Africana de Nações',
-};
-const REGIOES=[
-  {nome:'Brasil e América do Sul', chaves:['brazil','conmebol','argentina','chile','south_america']},
-  {nome:'Competições europeias',   chaves:['uefa']},
-  {nome:'Grandes ligas europeias', exatas:['soccer_epl','soccer_spain_la_liga','soccer_italy_serie_a','soccer_germany_bundesliga','soccer_france_ligue_one']},
-  {nome:'Outras ligas europeias',  chaves:['england','efl','portugal','netherlands','belgium','turkey','greece','switzerland','austria','denmark','norway','sweden','finland','poland','russia','spl','ireland','spain_segunda','italy_serie_b','germany_liga3','germany_bundesliga2','france_ligue_two','fa_cup','copa_del_rey','coppa_italia','dfb_pokal','coupe_de_france']},
-  {nome:'Américas e resto do mundo',chaves:['usa','mexico','concacaf','japan','korea','china','australia','saudi','africa','fifa']},
-];
-const LISTA_RESERVA=['soccer_brazil_campeonato','soccer_epl','soccer_spain_la_liga',
-  'soccer_italy_serie_a','soccer_germany_bundesliga','soccer_france_ligue_one',
-  'soccer_uefa_champs_league','soccer_conmebol_copa_libertadores'];
-
-function rotular(s){ return NOMES_PT[s.key] || s.title || s.key; }
-function preencherCompeticoes(lista){
-  const usados=new Set();
-  const grupos=REGIOES.map(r=>({
-    nome:r.nome,
-    itens:lista.filter(s=>{
-      if(usados.has(s.key)) return false;
-      const bate = r.exatas ? r.exatas.includes(s.key) : r.chaves.some(c=>s.key.includes(c));
-      if(bate) usados.add(s.key);
-      return bate;
-    })}));
-  const resto=lista.filter(s=>!usados.has(s.key));
-  if(resto.length) grupos.push({nome:'Outras',itens:resto});
-  comp.innerHTML=grupos.filter(g=>g.itens.length).map(g=>
-    `<optgroup label="${g.nome}">${g.itens
-      .sort((a,b)=>rotular(a).localeCompare(rotular(b),'pt-BR'))
-      .map(s=>`<option value="${s.key}">${rotular(s)}</option>`).join('')}</optgroup>`).join('');
-  const padrao=[...comp.options].find(o=>o.value==='soccer_brazil_campeonato');
-  if(padrao) padrao.selected=true;
-  autoComp.innerHTML=comp.innerHTML;
-}
-
-async function carregarCompeticoes(){
-  try{
-    const r=await fetch(`${ODDS_BASE}/sports/?apiKey=${ODDS_KEY}`);
-    lerCota(r);
-    if(r.status===401){ let d=''; try{const j=await r.json(); d=j.message||'';}catch(e){} throw new Error('AUTH:'+d); }
-    if(!r.ok) throw new Error('HTTP '+r.status);
-    const todos=await r.json();
-    const fut=todos.filter(s=>s.group==='Soccer'&&s.active&&!s.has_outrights);
-    if(!fut.length) throw new Error('vazio');
-    preencherCompeticoes(fut);
-    stComp.innerHTML=`<p class="sm">${fut.length} competições de futebol com mercado aberto agora. A lista vem da própria API — se uma liga estiver em recesso, ela não aparece aqui.</p>`;
-  }catch(e){
-    comp.innerHTML=LISTA_RESERVA.map(k=>`<option value="${k}">${NOMES_PT[k]||k}</option>`).join('');
-    autoComp.innerHTML=comp.innerHTML;
-    const bloq=/Failed to fetch|NetworkError|Load failed/i.test(String(e.message));
-    stComp.innerHTML=`<div class="msg wa">${bloq
-      ? 'Não consegui consultar a lista de competições (bloqueio do navegador). Mostrando as principais. Sirva o arquivo por HTTP local para ver a lista completa.'
-      : 'Lista de competições indisponível. Mostrando as principais.'}</div>`;
-  }
-}
-
-/* ---------- Datas ---------- */
-function dataCurta(iso){
-  return new Date(iso).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'});
-}
-function rotuloDia(d){
-  const hoje=new Date(); hoje.setHours(0,0,0,0);
-  const alvo=new Date(d); alvo.setHours(0,0,0,0);
-  const dias=Math.round((alvo-hoje)/86400000);
-  if(dias===0) return 'Hoje';
-  if(dias===1) return 'Amanhã';
-  if(dias<0) return 'Já começou';
-  return `Em ${dias} dias`;
-}
-
-/* ---------- Navegação ---------- */
-document.querySelectorAll('.tabbtn').forEach(b=>b.addEventListener('click',()=>{
-  document.querySelectorAll('.tabbtn').forEach(x=>x.classList.remove('active'));
-  document.querySelectorAll('.tabpage').forEach(x=>x.classList.remove('active'));
-  b.classList.add('active');
-  document.getElementById('t-'+b.dataset.t).classList.add('active');
-  scrollTo(0,0);
-}));
-function irPara(t){ document.querySelector(`.tabbtn[data-t="${t}"]`).click(); }
-
-/* ---------- Aba Jogos ---------- */
-document.getElementById('bCarregar').addEventListener('click',async()=>{
-  const st=stJogos; pr.style.display='block'; pr.firstElementChild.style.width='35%';
-  st.innerHTML='<p>Buscando jogos e odds...</p>'; listaJogos.innerHTML='';
-  try{
-    jogos=await carregarJogos(comp.value);
-    pr.firstElementChild.style.width='100%';
-    if(!jogos.length){
-      st.innerHTML='<div class="msg wa">Nenhum jogo com odds abertas nessa competição agora. Pode estar fora de temporada, ou os próximos jogos ainda não abriram mercado.</div>';
-    } else {
-      const semTotals=jogos.filter(j=>!j.o.over25.odd).length;
-      st.innerHTML=`<div class="msg ok">${jogos.length} jogo(s) encontrados, do dia ${dataCurta(jogos[0].inicio)} ao dia ${dataCurta(jogos[jogos.length-1].inicio)}.</div>
-        ${semTotals?`<div class="msg nt">${semTotals} jogo(s) sem mercado de gols cotado — para esses o cálculo usa só o resultado (1X2) e fica menos preciso.</div>`:''}`;
-
-      // Agrupa por dia para a data ficar explícita na lista
-      const grupos={};
-      jogos.forEach((j,i)=>{ const k=new Date(j.inicio).toDateString();
-        (grupos[k]=grupos[k]||[]).push({j,i}); });
-      listaJogos.innerHTML=Object.entries(grupos).map(([k,itens])=>{
-        const d=new Date(k);
-        return `<div class="card" style="padding:12px;">
-          <h2 style="margin-bottom:4px;">${rotuloDia(d)}</h2>
-          <p class="sm" style="margin:0 0 10px;">${d.toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long'})}</p>
-          ${itens.map(({j,i})=>{
-            const hr=new Date(j.inicio).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
-            return `<div style="border-top:1px solid var(--border);padding-top:11px;margin-top:11px;">
-              <div style="font-size:15px;font-weight:600;">${j.casa} <span class="sm">x</span> ${j.fora}</div>
-              <p class="sm" style="margin:5px 0 9px;">${hr} · ${j.casas} casa(s) ·
-                ${j.o.casa.odd.toFixed(2)} / ${j.o.empate.odd.toFixed(2)} / ${j.o.fora.odd.toFixed(2)}
-                ${j.temRef?'':' · <span class="warn">sem Bet365</span>'}</p>
-              <button class="btn sm" style="width:100%;" onclick="gerar(${i})">Gerar bilhete</button>
-            </div>`;}).join('')}
-        </div>`;
-      }).join('');
-    }
-  }catch(e){
-    const m=String(e.message);
-    let txt;
-    if(m==='AUTH') txt='Chave de API rejeitada ou sem créditos no mês. Verifique sua conta em the-odds-api.com.';
-    else if(m.startsWith('422')) txt='A competição não aceita os mercados pedidos. Tente outra competição.';
-    else if(/Failed to fetch|NetworkError|Load failed/i.test(m))
-      , rode <b>python -m http.server 8000</b> e acesse <b>https://quantfut-gateway.onrender.com</b>';
-    else if(/429/.test(m)) txt='Limite de requisições atingido. Aguarde ou verifique sua cota mensal.';
-    else txt='Falha: '+m;
-    st.innerHTML=`<div class="msg er">${txt}</div>`;
-  }
-  setTimeout(()=>pr.style.display='none',700);
-});
-
-/* ---------- Tela de bilhete ---------- */
-let atual=null, meuBilhete=[], subAba='palpites';
-
-function textoBilhete(b,tipo,jogo,stake){
-  const ret=(stake*b.odd).toFixed(2).replace('.',',');
-  const num=['1\u20e3','2\u20e3','3\u20e3','4\u20e3','5\u20e3','6\u20e3','7\u20e3'];
-  return `\ud83c\udfab BILHETE ${tipo.toUpperCase()} \u2014 ${jogo}\n`+
-    `\ud83d\udcca Casa: ${b.casaNome||'\u2014'}\n`+
-    `\ud83d\udcb0 Odd: ${b.odd.toFixed(2)}\n`+
-    `\ud83d\udcb5 Stake: R$ ${stake.toFixed(2).replace('.',',')}\n`+
-    `\ud83c\udfaf Retorno: R$ ${ret}\n`+
-    `\ud83d\udcc8 Chance: ${(b.p*100).toFixed(1)}%\n`+
-    `Linhas:\n`+
-    b.linhas.map((l,i)=>`${num[i]||(i+1)+'.'} ${l.nome} \u2014 odd ${l.odd.toFixed(2)}`).join('\n');
-}
-
-window.copiar=function(btn,txt){
-  const ok=()=>{ const o=btn.textContent; btn.textContent='Copiado!';
-    btn.style.background='var(--mint)'; btn.style.color='var(--ink)';
-    setTimeout(()=>{btn.textContent=o;btn.style.background='';btn.style.color='';},2000); };
-  const fb=()=>{ const ta=document.createElement('textarea');
-    ta.value=txt; ta.style.position='fixed'; ta.style.opacity='0';
-    document.body.appendChild(ta); ta.focus(); ta.select();
-    try{ document.execCommand('copy'); ok(); }catch(e){ alert('N\u00e3o foi poss\u00edvel copiar.'); }
-    document.body.removeChild(ta); };
-  if(navigator.clipboard&&navigator.clipboard.writeText)
-    navigator.clipboard.writeText(txt).then(ok).catch(fb);
-  else fb();
-};
-
-/* Pontos-chave saem dos próprios cálculos — nenhuma frase inventada. */
-function pontosChave(j,an){
-  const p=[];
-  const pc=prob('Mandante vence',an.g), pe=prob('Empate',an.g), pf=prob('Visitante vence',an.g);
-  const fav = pc>pf?j.casa:j.fora;
-  p.push(`Mercado d\u00e1 ${(Math.max(pc,pf)*100).toFixed(0)}% ao ${fav}, contra ${(pe*100).toFixed(0)}% de empate`);
-  p.push(`Placar esperado ${an.lh.toFixed(2)} a ${an.la.toFixed(2)} \u2014 ${(an.lh+an.la).toFixed(2)} gols no jogo`);
-  const o25=prob('Mais de 2.5 gols',an.g);
-  p.push(`${o25>=0.5?'Mais':'Menos'} de 2.5 gols \u00e9 o lado prov\u00e1vel (${(Math.max(o25,1-o25)*100).toFixed(0)}%)`);
-  p.push(`Ambos marcarem: ${(prob('Ambos marcam',an.g)*100).toFixed(0)}%`);
-  if(j.casasBR&&j.casasBR.length>1){
-    const m=an.mercados.find(x=>x.nome==='Mandante vence');
-    const r=melhorCasaParaBilhete(j,[m]);
-    if(r.length>1){
-      const dif=(r[0].produto/r[r.length-1].produto-1)*100;
-      if(dif>1) p.push(`Entre ${r.length} casas, a melhor paga ${dif.toFixed(1)}% a mais que a pior`);
-    }
-  }
-  if(j.extras&&j.extras.length) p.push(`${j.extras.length} mercados extras dispon\u00edveis neste jogo`);
-  return p;
-}
-
-window.gerar=function(idx){
-  const j=jogos[idx];
-  const an=analisarJogo(j);
-  const eq=melhorEntre(an,[3,4,5],3.50,5.00) || melhorEntre(an,[3,4],2.20,6.50);
-  const so=melhorEntre(an,[4,5,6,7],8.00,15.00) || melhorEntre(an,[4,5],5.50,22.00);
-  atual={jogo:j,an,eq,so,idx}; meuBilhete=[]; subAba='palpites';
-  renderBilhete(); irPara('bilhete');
-};
-window.subAbaSet=function(a){ subAba=a; renderBilhete(); };
-
-window.toggleLinha=function(nome){
-  const i=meuBilhete.indexOf(nome);
-  if(i>=0){ meuBilhete.splice(i,1); renderBilhete(); return; }
-  if(meuBilhete.length>=7){ alert('M\u00e1ximo de 7 linhas.'); return; }
-  const teste=[...meuBilhete,nome];
-  if(temRedundancia(teste,atual.an.g,atual.an.mercados)){
-    alert('Essa linha n\u00e3o combina com o que j\u00e1 est\u00e1 no bilhete: uma implica a outra, ou s\u00e3o do mesmo grupo.'); return; }
-  if(probJunta(teste,atual.an.g,atual.an.mercados)<1e-9){
-    alert('Essas linhas n\u00e3o podem acontecer juntas.'); return; }
-  if(teste.every(n=>MERCADOS[n])){
-    const prod=teste.reduce((a,n)=>{const m=atual.an.mercados.find(x=>x.nome===n); return a*(m?m.odd:1);},1);
-    const eqv=equivaleAMercadoSimples(teste,atual.an.mercados,atual.an.g,prod);
-    if(eqv){ alert('Essa combina\u00e7\u00e3o d\u00e1 exatamente "'+eqv.nome+'", que sozinho paga '+eqv.odd.toFixed(2)+' contra '+prod.toFixed(2)+' das duas juntas. Aposte na linha \u00fanica.'); return; }
-  }
-  meuBilhete.push(nome); renderBilhete();
-};
-
-/* Linha comparando a chance do modelo com a chance embutida na odd. */
-function linhaMercado(m,an,comBotao){
-  const pImp=1/m.odd, sobe=m.p>pImp, dif=(m.p-pImp)*100;
-  const on=meuBilhete.includes(m.nome);
-  return `<div class="mkt">
-    <div class="mkt-ico ${sobe?'up':'dn'}">${sobe?'\u2191':'\u2193'}</div>
-    <div class="mkt-nm">${m.nome}
-      <div class="mkt-sub">${Math.abs(dif)<1?'pre\u00e7o justo':`${dif>0?'+':''}${dif.toFixed(1)} p.p. vs mercado`}</div></div>
-    <div class="mkt-num">
-      <span style="color:var(--muted);">MODELO</span> <b style="color:${sobe?'var(--mint)':'var(--red)'}">${(m.p*100).toFixed(1)}%</b><br>
-      <span style="color:var(--muted);">ODD</span> <b>${m.odd.toFixed(2)}</b> <span style="color:var(--muted);">(${(pImp*100).toFixed(1)}%)</span>
-    </div>
-    ${comBotao?`<button class="mkt-add ${on?'on':''}" onclick="toggleLinha(&quot;${m.nome.replace(/"/g,'')}&quot;)">${on?'\u2212':'+'}</button>`:''}
-  </div>`;
-}
-
-function renderBilhete(){
-  if(!atual){ bilheteConteudo.innerHTML='<div class="card"><h1>Bilhete</h1><p>Escolha um jogo na aba Jogos.</p></div>'; return; }
-  const j=atual.jogo, an=atual.an, eq=atual.eq, so=atual.so;
-  const nomeJogo=`${j.casa} x ${j.fora}`;
-  const ini=new Date(j.inicio);
-
-  let melhorP=0,pi=0,pj=0;
-  for(let i=0;i<=6;i++) for(let k=0;k<=6;k++) if(an.g[i][k]>melhorP){melhorP=an.g[i][k];pi=i;pj=k;}
-  const inic=t=>t.split(/\s+/).slice(0,2).map(x=>x[0]).join('').toUpperCase();
-
-  const principais=['Mandante n\u00e3o perde','Visitante n\u00e3o perde','Mais de 1.5 gols',
-    'Menos de 3.5 gols','Ambos marcam','Mandante vence','Visitante vence'];
-  let mp=null;
-  principais.forEach(n=>{ const m=an.mercados.find(x=>x.nome===n); if(m&&(!mp||m.p>mp.p)) mp=m; });
-  const conf=mp?mp.p:0;
-  const corConf=conf>=0.65?'var(--mint)':conf>=0.5?'var(--yellow)':'var(--red)';
-
-  const topo=`<div class="duelo">
-      <div class="duelo-top">
-        <div class="duelo-time"><div class="duelo-esc">${inic(j.casa)}</div>
-          <div class="duelo-nome">${j.casa}</div></div>
-        <div style="text-align:center;">
-          <div class="duelo-placar">${pi} <span style="color:var(--muted);">-</span> ${pj}</div>
-          <div class="duelo-tag">MAIS PROV\u00c1VEL \u00b7 ${(melhorP*100).toFixed(1)}%</div>
+<body class="min-h-screen flex flex-col">
+  <!-- Cabeçalho -->
+  <header class="bg-slate-900 border-b border-slate-800 p-4 sticky top-0 z-50 shadow-md">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+      <div class="flex items-center gap-3">
+        <div class="p-2 bg-blue-600 rounded-lg text-white font-bold text-xl">QF</div>
+        <div>
+          <h1 class="text-xl font-bold tracking-wide text-white">QuantFut Auto</h1>
+          <p class="text-xs text-slate-400">Análise Quantitativa, Simulação & Gestão de Apostas</p>
         </div>
-        <div class="duelo-time"><div class="duelo-esc">${inic(j.fora)}</div>
-          <div class="duelo-nome">${j.fora}</div></div>
       </div>
-      <p class="sm" style="text-align:center;margin-top:11px;">
-        ${ini.toLocaleString('pt-BR',{weekday:'short',day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}
-        \u00b7 ${j.casas} casas \u00b7 \u03bb ${an.lh.toFixed(2)}/${an.la.toFixed(2)}</p>
+      <!-- Resumo da Banca -->
+      <div class="flex items-center gap-6 bg-slate-800/80 px-4 py-2 rounded-xl border border-slate-700">
+        <div>
+          <span class="text-xs text-slate-400 block">Banca Atual</span>
+          <span id="header-banca" class="text-lg font-bold text-emerald-400">R$ 1.000,00</span>
+        </div>
+        <div class="border-l border-slate-700 pl-4">
+          <span class="text-xs text-slate-400 block">ROI Geral</span>
+          <span id="header-roi" class="text-lg font-bold text-blue-400">+0.00%</span>
+        </div>
+      </div>
     </div>
-    <div class="dupla">
-      <div class="conf"><div class="conf-l">CONFIAN\u00c7A</div>
-        <div class="conf-v" style="color:${corConf}">${(conf*100).toFixed(0)}%</div>
-        <div class="conf-bar"><span style="width:${(conf*100).toFixed(0)}%;background:${corConf}"></span></div>
-        <p class="sm" style="margin-top:8px;font-size:10px;">chance da linha mais segura</p></div>
-      <div class="dest ${conf<0.6?'frio':''}">
-        <div class="dest-l">MELHOR PALPITE</div>
-        <div class="dest-v">${mp?mp.nome:'\u2014'}</div>
-        <div class="dest-o">${mp?`odd ${mp.odd.toFixed(2)} \u00b7 ${(mp.p*100).toFixed(0)}%`:''}</div></div>
-    </div>
-    <div class="subtabs">
-      <button class="subtab ${subAba==='palpites'?'active':''}" onclick="subAbaSet('palpites')">Palpites</button>
-      <button class="subtab ${subAba==='mercados'?'active':''}" onclick="subAbaSet('mercados')">Mercados</button>
-      <button class="subtab ${subAba==='analise'?'active':''}" onclick="subAbaSet('analise')">An\u00e1lise</button>
-    </div>`;
+  </header>
 
-  let corpo='';
-  if(subAba==='palpites'){
-    const bloco=(b,tipo,uni)=>{
-      if(!b) return `<div class="card"><h3>${tipo}</h3><div class="msg wa">Nenhuma combina\u00e7\u00e3o nessa faixa de odd.</div></div>`;
-      const stake=+(cfg.banca*uni/100).toFixed(2), ret=+(stake*b.odd).toFixed(2);
-      const rank=melhorCasaParaBilhete(j,b.linhas);
-      b.casaNome=rank[0]?rank[0].nome:'m\u00e9dia de mercado';
-      const id='t'+Math.random().toString(36).slice(2,8);
-      window['__'+id]=textoBilhete(b,tipo,nomeJogo,stake);
-      return `<div class="card">
-        <div class="row" style="justify-content:space-between;align-items:baseline;">
-          <h2 style="margin:0;letter-spacing:.5px;">${tipo.toUpperCase()}</h2>
-          <span style="font-size:22px;font-weight:800;color:var(--mint);">${b.odd.toFixed(2)}</span></div>
-        <p class="sm" style="margin:5px 0 11px;">${b.casaNome} \u00b7 R$ ${stake.toFixed(2).replace('.',',')} (${String(uni).replace('.',',')}u)
-          \u00b7 retorno R$ ${ret.toFixed(2).replace('.',',')} \u00b7 chance ${(b.p*100).toFixed(1)}%</p>
-        ${b.linhas.map(l=>linhaMercado(l,an,false)).join('')}
-        <div class="row" style="margin-top:10px;">
-          <button class="btn sm" style="flex:1;" onclick="copiar(this,window['__${id}'])">Copiar</button>
-          <button class="btn sec sm" style="flex:1;" onclick="salvar('${tipo}')">Salvar</button>
-          <button class="btn sec sm" style="flex:1;" onclick="addSelecao('${tipo}')">+ Multi</button>
-        </div></div>`;
+  <!-- Navegação por Abas -->
+  <nav class="bg-slate-900/90 border-b border-slate-800 backdrop-blur sticky top-[73px] z-40">
+    <div class="max-w-7xl mx-auto flex overflow-x-auto text-sm text-slate-400 px-4">
+      <button onclick="switchTab('jogos')" id="tab-jogos" class="tab-btn active px-5 py-3 whitespace-nowrap hover:text-slate-200">⚽ Jogos & API</button>
+      <button onclick="switchTab('poisson')" id="tab-poisson" class="tab-btn px-5 py-3 whitespace-nowrap hover:text-slate-200">📊 Modelo xG (Poisson)</button>
+      <button onclick="switchTab('builder')" id="tab-builder" class="tab-btn px-5 py-3 whitespace-nowrap hover:text-slate-200">🛠️ Bet Builder</button>
+      <button onclick="switchTab('sistemas')" id="tab-sistemas" class="tab-btn px-5 py-3 whitespace-nowrap hover:text-slate-200">🎲 Múltiplas & Sistemas</button>
+      <button onclick="switchTab('carteira')" id="tab-carteira" class="tab-btn px-5 py-3 whitespace-nowrap hover:text-slate-200">💰 Carteira & Métricas</button>
+    </div>
+  </nav>
+
+  <!-- Conteúdo Principal -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 space-y-6">
+
+    <!-- ABA 1: JOGOS & API -->
+    <section id="sec-jogos" class="tab-content space-y-6">
+      <div class="bg-slate-800/50 p-5 rounded-2xl border border-slate-700/60 shadow-xl">
+        <h2 class="text-lg font-semibold mb-3 text-slate-200 flex items-center gap-2">⚙️ Configuração The Odds API</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Chave da API (API Key)</label>
+            <input type="password" id="api-key" placeholder="Insira sua chave API" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Liga / Competição</label>
+            <select id="api-sport" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
+              <option value="soccer_brazil_campeonato">Brasileirão Série A</option>
+              <option value="soccer_epl">Premier League (Inglaterra)</option>
+              <option value="soccer_spain_la_liga">La Liga (Espanha)</option>
+              <option value="soccer_uefa_champs_league">Champions League</option>
+            </select>
+          </div>
+          <div class="flex items-end gap-2">
+            <button onclick="buscarOddsAPI()" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium py-2 rounded-lg transition shadow">Buscar Odds</button>
+            <button onclick="carregarJogosMock()" class="bg-slate-700 hover:bg-slate-600 text-slate-200 text-sm font-medium py-2 px-3 rounded-lg transition">Usar Mock</button>
+          </div>
+        </div>
+        <div class="mt-3 text-xs text-slate-400 flex justify-between items-center">
+          <span id="api-status">Status: Aguardando requisição...</span>
+          <span id="api-quota">Cache local: Ativo (localStorage)</span>
+        </div>
+      </div>
+
+      <div id="jogos-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <!-- Cards dinâmicos das partidas -->
+      </div>
+    </section>
+
+    <!-- ABA 2: MODELO POISSON / XG -->
+    <section id="sec-poisson" class="tab-content hidden space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Entradas do Modelo -->
+        <div class="bg-slate-800/50 p-5 rounded-2xl border border-slate-700/60 shadow-xl space-y-4">
+          <h2 class="text-lg font-semibold text-slate-200">⚽ Entradas xG & Parâmetros</h2>
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">Equipe da Casa</label>
+            <input type="text" id="p-home-name" value="Flamengo" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white mb-2">
+            <label class="block text-xs text-slate-400 mb-1">xG Casa (&lambda;)</label>
+            <input type="number" step="0.05" id="p-xg-home" value="1.75" oninput="calcularPoisson()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white">
+          </div>
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">Equipe Visitante</label>
+            <input type="text" id="p-away-name" value="Palmeiras" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white mb-2">
+            <label class="block text-xs text-slate-400 mb-1">xG Visitante (&mu;)</label>
+            <input type="number" step="0.05" id="p-xg-away" value="1.20" oninput="calcularPoisson()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white">
+          </div>
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">Ajuste Dixon-Coles (&tau; / &rho;)</label>
+            <input type="number" step="0.01" id="p-tau" value="-0.04" oninput="calcularPoisson()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white">
+            <span class="text-[10px] text-slate-500">Ajusta correlação de placares baixos (0-0, 1-0, 0-1, 1-1).</span>
+          </div>
+          <button onclick="calcularPoisson()" class="w-full bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium py-2 rounded-lg transition">Recalcular Modelo</button>
+        </div>
+
+        <!-- Resultados e Matriz -->
+        <div class="lg:col-span-2 bg-slate-800/50 p-5 rounded-2xl border border-slate-700/60 shadow-xl space-y-6">
+          <h2 class="text-lg font-semibold text-slate-200">📈 Probabilidades & Odds Justas</h2>
+          
+          <div class="grid grid-cols-3 gap-3 text-center">
+            <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-700/50">
+              <span class="text-xs text-slate-400 block" id="lbl-p-home">Casa</span>
+              <span id="prob-1" class="text-lg font-bold text-emerald-400">0%</span>
+              <span id="fair-1" class="text-xs text-slate-400 block mt-1">Odd: -</span>
+            </div>
+            <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-700/50">
+              <span class="text-xs text-slate-400 block">Empate</span>
+              <span id="prob-x" class="text-lg font-bold text-amber-400">0%</span>
+              <span id="fair-x" class="text-xs text-slate-400 block mt-1">Odd: -</span>
+            </div>
+            <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-700/50">
+              <span class="text-xs text-slate-400 block" id="lbl-p-away">Fora</span>
+              <span id="prob-2" class="text-lg font-bold text-rose-400">0%</span>
+              <span id="fair-2" class="text-xs text-slate-400 block mt-1">Odd: -</span>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
+            <div class="bg-slate-900/60 p-2.5 rounded-lg border border-slate-700/40">
+              <span class="text-xs text-slate-400 block">Over 2.5 Golos</span>
+              <span id="prob-o25" class="text-sm font-bold text-blue-400">0%</span>
+              <span id="fair-o25" class="text-[11px] text-slate-500 block">Odd: -</span>
+            </div>
+            <div class="bg-slate-900/60 p-2.5 rounded-lg border border-slate-700/40">
+              <span class="text-xs text-slate-400 block">Under 2.5 Golos</span>
+              <span id="prob-u25" class="text-sm font-bold text-blue-400">0%</span>
+              <span id="fair-u25" class="text-[11px] text-slate-500 block">Odd: -</span>
+            </div>
+            <div class="bg-slate-900/60 p-2.5 rounded-lg border border-slate-700/40">
+              <span class="text-xs text-slate-400 block">Ambas Marcam (Sim)</span>
+              <span id="prob-btts-yes" class="text-sm font-bold text-purple-400">0%</span>
+              <span id="fair-btts-yes" class="text-[11px] text-slate-500 block">Odd: -</span>
+            </div>
+            <div class="bg-slate-900/60 p-2.5 rounded-lg border border-slate-700/40">
+              <span class="text-xs text-slate-400 block">Ambas Marcam (Não)</span>
+              <span id="prob-btts-no" class="text-sm font-bold text-purple-400">0%</span>
+              <span id="fair-btts-no" class="text-[11px] text-slate-500 block">Odd: -</span>
+            </div>
+          </div>
+
+          <div>
+            <h3 class="text-sm font-semibold text-slate-300 mb-2">Matriz de Probabilidade de Placares (Casa x Visitante)</h3>
+            <div class="overflow-x-auto">
+              <table id="matrix-table" class="w-full text-center text-xs border-collapse">
+                <!-- Tabela inserida via JS -->
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABA 3: BET BUILDER -->
+    <section id="sec-builder" class="tab-content hidden space-y-6">
+      <div class="bg-slate-800/50 p-5 rounded-2xl border border-slate-700/60 shadow-xl space-y-4">
+        <h2 class="text-lg font-semibold text-slate-200">🛠️ Criador de Apostas Correlacionadas (Bet Builder)</h2>
+        <p class="text-xs text-slate-400">Combine mercados do mesmo jogo. O algoritmo calcula a probabilidade ajustada e encontra a melhor combinação na faixa de odds pretendida.</p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-slate-900/60 p-4 rounded-xl border border-slate-700/50">
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">Odd Mínima Desejada</label>
+            <input type="number" step="0.1" id="bb-odd-min" value="2.00" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white">
+          </div>
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">Odd Máxima Desejada</label>
+            <input type="number" step="0.1" id="bb-odd-max" value="4.50" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white">
+          </div>
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">Margem do Bookmaker (%)</label>
+            <input type="number" step="1" id="bb-margin" value="8" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white">
+          </div>
+        </div>
+
+        <div class="space-y-2">
+          <h3 class="text-sm font-semibold text-slate-300">Selecione as Seleções a Combinar:</h3>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs" id="bb-options">
+            <label class="flex items-center gap-2 bg-slate-900/80 p-3 rounded-lg border border-slate-700 cursor-pointer">
+              <input type="checkbox" value="1" data-name="Vitória Casa (1)" data-prob="0.52" class="bb-check rounded text-blue-600">
+              <span>Vitória Casa</span>
+            </label>
+            <label class="flex items-center gap-2 bg-slate-900/80 p-3 rounded-lg border border-slate-700 cursor-pointer">
+              <input type="checkbox" value="O2.5" data-name="Over 2.5 Golos" data-prob="0.55" class="bb-check rounded text-blue-600">
+              <span>Over 2.5 Golos</span>
+            </label>
+            <label class="flex items-center gap-2 bg-slate-900/80 p-3 rounded-lg border border-slate-700 cursor-pointer">
+              <input type="checkbox" value="BTTS" data-name="Ambas Marcam - Sim" data-prob="0.58" class="bb-check rounded text-blue-600">
+              <span>Ambas Marcam (Sim)</span>
+            </label>
+            <label class="flex items-center gap-2 bg-slate-900/80 p-3 rounded-lg border border-slate-700 cursor-pointer">
+              <input type="checkbox" value="C8.5" data-name="Mais de 8.5 Cantos" data-prob="0.65" class="bb-check rounded text-blue-600">
+              <span>Mais de 8.5 Cantos</span>
+            </label>
+            <label class="flex items-center gap-2 bg-slate-900/80 p-3 rounded-lg border border-slate-700 cursor-pointer">
+              <input type="checkbox" value="K4.5" data-name="Mais de 4.5 Cartões" data-prob="0.60" class="bb-check rounded text-blue-600">
+              <span>Mais de 4.5 Cartões</span>
+            </label>
+          </div>
+        </div>
+
+        <button onclick="executarMontagem()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-2.5 rounded-xl transition shadow-lg">⚡ Montar e Otimizar Bet Builder</button>
+
+        <div id="bb-result" class="hidden bg-slate-900/90 p-5 rounded-xl border border-emerald-500/40 space-y-3">
+          <h3 class="text-sm font-bold text-emerald-400 uppercase tracking-wider">Combinado Encontrado</h3>
+          <div id="bb-result-lines" class="text-sm text-slate-200 space-y-1"></div>
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-3 pt-2 border-t border-slate-800">
+            <div>
+              <span class="text-xs text-slate-400 block">Probabilidade Ajustada</span>
+              <span id="bb-res-p" class="text-base font-bold text-white">0%</span>
+            </div>
+            <div>
+              <span class="text-xs text-slate-400 block">Odd Calculada</span>
+              <span id="bb-res-odd" class="text-base font-bold text-emerald-400">1.00</span>
+            </div>
+            <div class="col-span-2 md:col-span-1">
+              <button onclick="adicionarBetBuilderACarteira()" class="w-full bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold py-2 px-3 rounded-lg transition">Simular Aposta na Carteira</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABA 4: MÚLTIPLAS & SISTEMAS -->
+    <section id="sec-sistemas" class="tab-content hidden space-y-6">
+      <div class="bg-slate-800/50 p-5 rounded-2xl border border-slate-700/60 shadow-xl space-y-4">
+        <h2 class="text-lg font-semibold text-slate-200">🎲 Apostas Múltiplas & Sistemas de Combinações</h2>
+        <p class="text-xs text-slate-400">Insira as odds dos seus jogos independentes para calcular o investimento, retorno potencial e cobertura do sistema.</p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="space-y-3">
+            <h3 class="text-sm font-semibold text-slate-300">Jogos Selecionados (Odds)</h3>
+            <div id="system-inputs" class="space-y-2">
+              <div class="flex items-center gap-2">
+                <input type="text" value="Jogo A - Casa (1.80)" class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white">
+                <input type="number" step="0.05" value="1.80" class="sys-odd w-24 bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white text-center" oninput="calcularSistemas()">
+              </div>
+              <div class="flex items-center gap-2">
+                <input type="text" value="Jogo B - Over 2.5 (1.95)" class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white">
+                <input type="number" step="0.05" value="1.95" class="sys-odd w-24 bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white text-center" oninput="calcularSistemas()">
+              </div>
+              <div class="flex items-center gap-2">
+                <input type="text" value="Jogo C - BTTS (1.75)" class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white">
+                <input type="number" step="0.05" value="1.75" class="sys-odd w-24 bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white text-center" oninput="calcularSistemas()">
+              </div>
+            </div>
+            <div class="flex gap-2">
+              <button onclick="addSystemInput()" class="bg-slate-700 hover:bg-slate-600 text-xs text-slate-200 py-1.5 px-3 rounded-lg transition">+ Adicionar Seleção</button>
+              <button onclick="removeSystemInput()" class="bg-slate-700 hover:bg-slate-600 text-xs text-slate-200 py-1.5 px-3 rounded-lg transition">- Remover Seleção</button>
+            </div>
+
+            <div class="pt-2">
+              <label class="block text-xs text-slate-400 mb-1">Valor do Stake por Aposta (R$)</label>
+              <input type="number" id="sys-stake" value="10" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white" oninput="calcularSistemas()">
+            </div>
+          </div>
+
+          <div class="space-y-3 bg-slate-900/60 p-4 rounded-xl border border-slate-700/50">
+            <h3 class="text-sm font-semibold text-slate-300">Resumo do Sistema</h3>
+            <div id="systems-output" class="space-y-2 text-xs text-slate-300">
+              <!-- Resultados calculados dos sistemas -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABA 5: CARTEIRA & MÉTRICAS -->
+    <section id="sec-carteira" class="tab-content hidden space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="bg-slate-800/50 p-5 rounded-2xl border border-slate-700/60 shadow-xl space-y-4">
+          <h2 class="text-lg font-semibold text-slate-200">📊 Métricas de Desempenho</h2>
+          
+          <div class="space-y-3 text-xs">
+            <div class="flex justify-between p-2.5 bg-slate-900/60 rounded-lg border border-slate-700/40">
+              <span class="text-slate-400">Total Apostas</span>
+              <span id="m-total" class="font-bold text-white">0</span>
+            </div>
+            <div class="flex justify-between p-2.5 bg-slate-900/60 rounded-lg border border-slate-700/40">
+              <span class="text-slate-400">Taxa de Acerto (Win Rate)</span>
+              <span id="m-winrate" class="font-bold text-emerald-400">0%</span>
+            </div>
+            <div class="flex justify-between p-2.5 bg-slate-900/60 rounded-lg border border-slate-700/40">
+              <span class="text-slate-400">Lucro / Prejuízo Líquido</span>
+              <span id="m-profit" class="font-bold text-emerald-400">R$ 0,00</span>
+            </div>
+            <div class="flex justify-between p-2.5 bg-slate-900/60 rounded-lg border border-slate-700/40">
+              <span class="text-slate-400">Brier Score (Calibração)</span>
+              <span id="m-brier" class="font-bold text-blue-400">0.000</span>
+            </div>
+            <div class="flex justify-between p-2.5 bg-slate-900/60 rounded-lg border border-slate-700/40">
+              <span class="text-slate-400">Log-Loss</span>
+              <span id="m-logloss" class="font-bold text-purple-400">0.000</span>
+            </div>
+          </div>
+
+          <div class="pt-2">
+            <button onclick="resetarCarteira()" class="w-full bg-rose-900/50 hover:bg-rose-800/80 text-rose-200 text-xs py-2 rounded-lg border border-rose-700/50 transition">Resetar Banca & Histórico</button>
+          </div>
+        </div>
+
+        <div class="lg:col-span-2 space-y-6">
+          <div class="bg-slate-800/50 p-5 rounded-2xl border border-slate-700/60 shadow-xl space-y-3">
+            <h2 class="text-lg font-semibold text-slate-200">📈 Curva de Evolução da Banca</h2>
+            <div class="h-48 w-full bg-slate-900/80 rounded-xl p-2 flex items-center justify-center border border-slate-700/50">
+              <svg id="chart-svg" class="w-full h-full text-blue-500" viewBox="0 0 500 150" preserveAspectRatio="none">
+                <!-- Gráfico de linha gerado via JS -->
+              </svg>
+            </div>
+          </div>
+
+          <div class="bg-slate-800/50 p-5 rounded-2xl border border-slate-700/60 shadow-xl space-y-3">
+            <h2 class="text-lg font-semibold text-slate-200">📜 Histórico de Transações</h2>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs border-collapse">
+                <thead>
+                  <tr class="border-b border-slate-700 text-slate-400">
+                    <th class="p-2">Data</th>
+                    <th class="p-2">Aposta / Seleção</th>
+                    <th class="p-2 text-center">Odd</th>
+                    <th class="p-2 text-center">Stake</th>
+                    <th class="p-2 text-center">Resultado</th>
+                    <th class="p-2 text-right">Retorno</th>
+                  </tr>
+                </thead>
+                <tbody id="tx-table-body" class="divide-y divide-slate-800 text-slate-300">
+                  <!-- Transações inseridas via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="bg-slate-900 border-t border-slate-800 py-4 text-center text-xs text-slate-500 mt-auto">
+    QuantFut Auto &copy; 2026 - Modelo de Análise Quantitativa e Gestão Financeira para Apostas Desportivas.
+  </footer>
+
+  <!-- Lógica da Aplicação -->
+  <script>
+    // Estado Global da Aplicação
+    const AppState = {
+      bancaInicial: 1000.0,
+      bancaAtual: 1000.0,
+      transacoes: [],
+      apiKey: localStorage.getItem('quantfut_apikey') || '',
+      cacheJogos: JSON.parse(localStorage.getItem('quantfut_cache') || '[]')
     };
-    corpo=bloco(eq,'Equilibrado',2.5)+bloco(so,'Super Odd\u00e3o',0.75);
-  }
 
-  if(subAba==='mercados'){
-    const lista=an.mercados.filter(m=>m.p>0.05&&m.p<0.97).slice().sort((a,b)=>b.p-a.p);
-    const meu=meuBilhete.map(n=>an.mercados.find(m=>m.nome===n)).filter(Boolean);
-    let cartao='';
-    if(meu.length>=2){
-      const p=probJunta(meuBilhete,an.g,an.mercados);
-      const rank=melhorCasaParaBilhete(j,meu);
-      const oddBB=oddBetBuilder(p);
-      const stake=+(cfg.banca*2.5/100).toFixed(2);
-      const bb={linhas:meu,nomes:meuBilhete,p,odd:oddBB,casaNome:rank[0]?rank[0].nome:'\u2014'};
-      const id='mb'+Math.random().toString(36).slice(2,6);
-      window['__'+id]=textoBilhete(bb,'Montado',nomeJogo,stake);
-      cartao=`<div class="card" style="border-color:var(--mint);">
-        <div class="row" style="justify-content:space-between;align-items:baseline;">
-          <h2 style="margin:0;">MEU BILHETE</h2>
-          <span style="font-size:22px;font-weight:800;color:var(--mint);">${oddBB.toFixed(2)}</span></div>
-        <p class="sm" style="margin:5px 0 9px;">${meu.length} linhas \u00b7 chance ${(p*100).toFixed(1)}%
-          \u00b7 ${bb.casaNome} \u00b7 retorno R$ ${(stake*oddBB).toFixed(2).replace('.',',')} com R$ ${stake.toFixed(2).replace('.',',')}</p>
-        <div class="row">
-          <button class="btn sm" style="flex:1;" onclick="copiar(this,window['__${id}'])">Copiar</button>
-          <button class="btn sec sm" style="flex:1;" onclick="salvarMontado(${p},${oddBB},${stake})">Salvar</button>
-        </div></div>`;
-    } else if(meu.length===1){
-      cartao='<div class="msg nt">1 linha escolhida. Toque em + para montar o bilhete.</div>';
+    // Navegação entre Abas
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+      document.getElementById(`sec-${tabId}`).classList.remove('hidden');
+      document.getElementById(`tab-${tabId}`).classList.add('active');
     }
-    corpo=cartao+`<div class="card">
-      <p class="sm" style="margin-bottom:11px;">A seta compara a chance calculada com a chance embutida na odd. Verde para cima: o modelo v\u00ea mais chance do que a casa est\u00e1 pagando.</p>
-      ${lista.map(m=>linhaMercado(m,an,true)).join('')}</div>`;
-  }
 
-  if(subAba==='analise'){
-    const pts=pontosChave(j,an);
-    const rank=melhorCasaParaBilhete(j,[an.mercados.find(m=>m.nome==='Mandante vence')]);
-    corpo=`<div class="card">
-      <div class="secao">PONTOS-CHAVE</div>
-      <ul class="pchave" style="margin:0;padding:13px;">${pts.map(x=>`<li>${x}</li>`).join('')}</ul>
-      <div class="secao">ONDE APOSTAR</div>
-      ${rank.slice(0,5).map((r,i)=>`<div class="row" style="justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);">
-        <span class="sm">${i===0?'<b style="color:var(--mint)">'+r.nome+'</b>':r.nome}${r.comissao?' <span class="warn">(com comiss\u00e3o)</span>':''}</span>
-        <span class="sm">${r.produto.toFixed(2)}</span></div>`).join('')}
-      <div class="secao">COMO LER</div>
-      <p class="sm">As probabilidades saem das odds do mercado com a margem removida. O sistema n\u00e3o tem opini\u00e3o pr\u00f3pria sobre os times \u2014 ele traduz pre\u00e7o em chance e monta combina\u00e7\u00f5es coerentes.</p>
-      <p class="sm">A odd de m\u00faltipla \u00e9 estimativa do Criar Aposta, calculada sobre a chance de as linhas baterem juntas. A odd final do site \u00e9 a que vale.</p>
-    </div>`;
-  }
-  bilheteConteudo.innerHTML=topo+corpo;
-}
-
-window.salvar=function(tipo){
-  const b=tipo==='Equilibrado'?atual.eq:atual.so;
-  if(!b) return;
-  const uni=tipo==='Equilibrado'?2.5:0.75;
-  hist.unshift({id:'B'+Date.now(), data:new Date().toISOString(), inicio:atual.jogo.inicio,
-    jogo:`${atual.jogo.casa} x ${atual.jogo.fora}`, tipo, odd:b.odd,
-    stake:+(cfg.banca*uni/100).toFixed(2), linhas:b.nomes, prob:b.p,
-    placar:'', status:'Aberto', sport:comp.value,
-    escanteios:null, cartoes:null, marcadores:''});
-  salvarHist(); render(); irPara('hist');
-};
-
-window.salvarMontado=function(p,odd,stake){
-  hist.unshift({id:'B'+Date.now(), data:new Date().toISOString(), inicio:atual.jogo.inicio,
-    jogo:`${atual.jogo.casa} x ${atual.jogo.fora}`, tipo:'Montado', odd:+odd.toFixed(2),
-    stake, linhas:meuBilhete.slice(), prob:p, placar:'', status:'Aberto',
-    sport:comp.value, escanteios:null, cartoes:null, marcadores:''});
-  salvarHist(); meuBilhete=[]; renderBilhete(); render(); irPara('hist');
-};
-
-
-/* ---------- Histórico: avaliação automática pelo placar ---------- */
-/* Avalia um bilhete. Mercados de placar são automáticos; escanteios, cartões
-   e marcadores dependem dos totais que o usuário informa, porque o endpoint de
-   placares não traz esses dados. */
-function avaliar(item){
-  if(item.legado||!item.linhas||!item.linhas.length) return null;
-  const m=(item.placar||'').match(/^\s*(\d+)\s*[-x:]\s*(\d+)\s*$/i);
-  if(!m) return null;
-  const i=+m[1], j=+m[2];
-  const esc=item.escanteios!=null?+item.escanteios:null;
-  const car=item.cartoes!=null?+item.cartoes:null;
-  const marc=(item.marcadores||'').toLowerCase();
-  const res=item.linhas.map(n=>{
-    if(MERCADOS[n]) return {nome:n, ok:MERCADOS[n](i,j)};
-    let mm=n.match(/^(Mais|Menos) de ([\d.]+) escanteios$/);
-    if(mm) return {nome:n, ok: esc==null?null:(mm[1]==='Mais'?esc>+mm[2]:esc<+mm[2])};
-    mm=n.match(/^(Mais|Menos) de ([\d.]+) cartões$/);
-    if(mm) return {nome:n, ok: car==null?null:(mm[1]==='Mais'?car>+mm[2]:car<+mm[2])};
-    mm=n.match(/^Placar exato (\d+)\D+(\d+)$/);
-    if(mm) return {nome:n, ok: i===+mm[1]&&j===+mm[2]};
-    mm=n.match(/^(.+) marca$/);
-    if(mm) return {nome:n, ok: marc?marc.includes(mm[1].toLowerCase()):null};
-    return {nome:n, ok:null};
-  });
-  const pendente=res.some(r=>r.ok===null);
-  return {i,j,res, bateu:res.every(r=>r.ok===true), pendente};
-}
-
-/* ---------- Busca de resultados ---------- */
-document.getElementById('bResultados').addEventListener('click',async()=>{
-  const st=resStatus;
-  st.innerHTML='<p>Buscando placares...</p>';
-  try{
-    // Junta as competições dos bilhetes abertos para consultar cada uma uma vez
-    const abertos=hist.filter(x=>x.status==='Aberto'&&!x.legado&&x.linhas&&x.linhas.length);
-    if(!abertos.length){ st.innerHTML='<div class="msg nt">Nenhum bilhete aberto.</div>'; return; }
-    const sports=[...new Set(abertos.map(x=>x.sport).filter(Boolean))];
-    if(!sports.length) sports.push(comp.value);
-    let mapa={};
-    for(const sp of sports){
-      try{ Object.assign(mapa, await buscarPlacares(sp,3)); }catch(e){}
+    // -------------------------------------------------------------
+    // MÓDULO 1: MODELO POISSON & DIXON-COLES
+    // -------------------------------------------------------------
+    function factorial(n) {
+      if (n === 0 || n === 1) return 1;
+      let res = 1;
+      for (let i = 2; i <= n; i++) res *= i;
+      return res;
     }
-    let fechados=0, semDado=0, faltaExtra=0;
-    abertos.forEach(it=>{
-      const [c,f]=(it.jogo||'').split(' x ');
-      const k=`${normNome(c)}|${normNome(f)}`;
-      const pl=mapa[k];
-      if(!pl){ semDado++; return; }
-      it.placar=`${pl.casa}-${pl.fora}`;
-      const av=avaliar(it);
-      if(!av){ semDado++; return; }
-      if(av.pendente){ faltaExtra++; return; }  // precisa de escanteios/cartões
-      const antes=it.status;
-      it.status=av.bateu?'Green':'Red';
-      if(it.simulado&&antes!==it.status){
-        carteira.transacoes=carteira.transacoes.filter(t=>!(t.ref===it.id&&t.tipo==='Retorno'));
-        if(it.status==='Green') carteira.transacoes.push({ts:Date.now(),tipo:'Retorno',ref:it.id,
-          desc:`Green — ${it.jogo}`, valor:+(it.stake*it.odd).toFixed(2)});
+
+    function poisson(k, lambda) {
+      return (Math.pow(lambda, k) * Math.exp(-lambda)) / factorial(k);
+    }
+
+    function tauFactor(x, y, lambda, mu, rho) {
+      if (x === 0 && y === 0) return 1 - lambda * mu * rho;
+      if (x === 1 && y === 0) return 1 + mu * rho;
+      if (x === 0 && y === 1) return 1 + lambda * rho;
+      if (x === 1 && y === 1) return 1 - rho;
+      return 1;
+    }
+
+    function calcularPoisson() {
+      const homeName = document.getElementById('p-home-name').value || 'Casa';
+      const awayName = document.getElementById('p-away-name').value || 'Visitante';
+      const lambda = parseFloat(document.getElementById('p-xg-home').value) || 1.5;
+      const mu = parseFloat(document.getElementById('p-xg-away').value) || 1.2;
+      const rho = parseFloat(document.getElementById('p-tau').value) || 0.0;
+
+      document.getElementById('lbl-p-home').innerText = homeName;
+      document.getElementById('lbl-p-away').innerText = awayName;
+
+      let p1 = 0, px = 0, p2 = 0;
+      let pOver25 = 0, pUnder25 = 0;
+      let pBttsYes = 0, pBttsNo = 0;
+
+      const matrix = [];
+      const maxGoals = 5;
+
+      for (let i = 0; i <= maxGoals; i++) {
+        matrix[i] = [];
+        for (let j = 0; j <= maxGoals; j++) {
+          let prob = poisson(i, lambda) * poisson(j, mu) * tauFactor(i, j, lambda, mu, rho);
+          matrix[i][j] = prob;
+
+          if (i > j) p1 += prob;
+          else if (i === j) px += prob;
+          else p2 += prob;
+
+          if (i + j > 2.5) pOver25 += prob;
+          else pUnder25 += prob;
+
+          if (i > 0 && j > 0) pBttsYes += prob;
+          else pBttsNo += prob;
+        }
       }
-      fechados++;
-    });
-    salvarHist(); salvarCarteira(); render();
-    st.innerHTML=`<div class="msg ${fechados?'ok':'wa'}">
-      ${fechados} bilhete(s) fechado(s) pelo placar oficial.
-      ${faltaExtra?`<br>${faltaExtra} com placar preenchido mas aguardando escanteios ou cartões — informe os totais no card.`:''}
-      ${semDado?`<br>${semDado} sem placar disponível ainda (jogo não encerrado ou fora da janela de 3 dias).`:''}
-    </div>`;
-  }catch(e){
-    const m=String(e.message);
-    st.innerHTML=`<div class="msg er">${m.startsWith('AUTH')?msgAuth(m)
-      :/Failed to fetch|NetworkError|Load failed/i.test(m)?'Requisição bloqueada pelo navegador. Sirva por HTTP local.'
-      :'Falha: '+m}</div>`;
-  }
-});
-function lucro(item){
-  if(item.status==='Green') return +(item.stake*(item.odd-1)).toFixed(2);
-  if(item.status==='Red') return -item.stake;
-  return 0;
-}
 
-let fHist={status:'all',tipo:'all'};
-function render(){
-  renderCarteira(); renderEvolucao();
-  // --- Histórico
-  const visiveis=hist.filter(it=>
-    (fHist.status==='all'||it.status===fHist.status)&&
-    (fHist.tipo==='all'||it.tipo===fHist.tipo));
-  listaHist.innerHTML = visiveis.length ? visiveis.map(it=>{
-    const av=avaliar(it);
-    const cls=it.status==='Green'?'g':it.status==='Red'?'r':'y';
-    const d=new Date(it.inicio||it.data);
-    return `<div class="card">
-      <div class="bil-h"><span>${it.jogo}</span><span class="badge ${cls}">${it.status}</span></div>
-      <div class="bil-s">${it.tipo} · odd ${it.odd.toFixed(2)} · R$ ${it.stake.toFixed(2)} ·
-        ${d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})}
-        ${it.status!=='Aberto'?` · <b class="${lucro(it)>=0?'pos':'neg'}">${lucro(it)>=0?'+':''}R$ ${lucro(it).toFixed(2)}</b>`:''}</div>
-      ${(it.linhas||[]).map(n=>{
-        const r=av?av.res.find(x=>x.nome===n):null;
-        const c=r? (r.ok===true?'ok':r.ok===false?'no':'') : '';
-        const mk=r? (r.ok===true?'✅':r.ok===false?'❌':'⏳') : '⏳';
-        return `<div class="linha ${c}"><div class="nm" style="font-size:13px;">${n}</div>
-          <div class="mk">${mk}</div></div>`;
-      }).join('')}
-      ${it.legado?'<p class="sm">Bilhete anterior ao sistema — mantido só para o histórico da banca.</p>':
-        `<label>Placar final (ex.: 2-1)</label>
-      <input type="text" inputmode="numeric" placeholder="0-0" value="${it.placar||''}"
-        data-id="${it.id}" class="placarIn">
-      ${(it.linhas||[]).some(n=>/escanteios/.test(n))?`<label>Total de escanteios</label>
-        <input type="number" inputmode="numeric" placeholder="ex.: 9" value="${it.escanteios??''}" data-id="${it.id}" class="escIn">`:''}
-      ${(it.linhas||[]).some(n=>/cartões/.test(n))?`<label>Total de cartões</label>
-        <input type="number" inputmode="numeric" placeholder="ex.: 4" value="${it.cartoes??''}" data-id="${it.id}" class="carIn">`:''}
-      ${(it.linhas||[]).some(n=>/ marca$/.test(n))?`<label>Quem marcou (nomes separados por vírgula)</label>
-        <input type="text" placeholder="ex.: Pedro, Arrascaeta" value="${it.marcadores||''}" data-id="${it.id}" class="marIn">`:''}`}
-      ${av?`<div class="msg ${av.pendente?'wa':av.bateu?'ok':'er'}" style="margin-bottom:0;">
-        Placar ${av.i}-${av.j}: ${av.pendente
-          ? `faltam dados para conferir ${av.res.filter(r=>r.ok===null).length} linha(s) — preencha os campos acima.`
-          : av.bateu ? `todas as ${av.res.length} linhas bateram. Bilhete pago.`
-          : `${av.res.filter(r=>r.ok===true).length} de ${av.res.length} linhas bateram — o bilhete não paga.`}</div>`:''}
-    </div>`;
-  }).join('') : '<div class="card"><p>Nenhum bilhete com esse filtro.</p></div>';
+      document.getElementById('prob-1').innerText = (p1 * 100).toFixed(1) + '%';
+      document.getElementById('fair-1').innerText = 'Odd: ' + (1 / p1).toFixed(2);
 
-  [['escIn','escanteios'],['carIn','cartoes'],['marIn','marcadores']].forEach(([cls,campo])=>{
-    document.querySelectorAll('.'+cls).forEach(inp=>inp.addEventListener('change',e=>{
-      const it=hist.find(x=>x.id===e.target.dataset.id); if(!it) return;
-      it[campo]= campo==='marcadores'? e.target.value.trim() : (e.target.value===''?null:+e.target.value);
-      const av=avaliar(it);
-      const antes=it.status;
-      it.status = (av&&!av.pendente) ? (av.bateu?'Green':'Red') : 'Aberto';
-      if(it.simulado&&antes!==it.status){
-        carteira.transacoes=carteira.transacoes.filter(t=>!(t.ref===it.id&&t.tipo==='Retorno'));
-        if(it.status==='Green') carteira.transacoes.push({ts:Date.now(),tipo:'Retorno',ref:it.id,
-          desc:`Green — ${it.jogo}`, valor:+(it.stake*it.odd).toFixed(2)});
-        salvarCarteira();
+      document.getElementById('prob-x').innerText = (px * 100).toFixed(1) + '%';
+      document.getElementById('fair-x').innerText = 'Odd: ' + (1 / px).toFixed(2);
+
+      document.getElementById('prob-2').innerText = (p2 * 100).toFixed(1) + '%';
+      document.getElementById('fair-2').innerText = 'Odd: ' + (1 / p2).toFixed(2);
+
+      document.getElementById('prob-o25').innerText = (pOver25 * 100).toFixed(1) + '%';
+      document.getElementById('fair-o25').innerText = 'Odd: ' + (1 / pOver25).toFixed(2);
+
+      document.getElementById('prob-u25').innerText = (pUnder25 * 100).toFixed(1) + '%';
+      document.getElementById('fair-u25').innerText = 'Odd: ' + (1 / pUnder25).toFixed(2);
+
+      document.getElementById('prob-btts-yes').innerText = (pBttsYes * 100).toFixed(1) + '%';
+      document.getElementById('fair-btts-yes').innerText = 'Odd: ' + (1 / pBttsYes).toFixed(2);
+
+      document.getElementById('prob-btts-no').innerText = (pBttsNo * 100).toFixed(1) + '%';
+      document.getElementById('fair-btts-no').innerText = 'Odd: ' + (1 / pBttsNo).toFixed(2);
+
+      let html = `<thead><tr class="bg-slate-900 text-slate-400"><th class="p-1">C \\ V</th>`;
+      for (let j = 0; j <= maxGoals; j++) html += `<th class="p-1">${j}</th>`;
+      html += `</tr></thead><tbody>`;
+
+      for (let i = 0; i <= maxGoals; i++) {
+        html += `<tr class="border-t border-slate-800"><td class="font-bold text-slate-400 bg-slate-900/50 p-1">${i}</td>`;
+        for (let j = 0; j <= maxGoals; j++) {
+          const val = (matrix[i][j] * 100).toFixed(1);
+          html += `<td class="p-1.5 hover:bg-slate-700/50 text-slate-300">${val}%</td>`;
+        }
+        html += `</tr>`;
       }
-      salvarHist(); render();
-    }));
-  });
-  document.querySelectorAll('.placarIn').forEach(inp=>inp.addEventListener('change',e=>{
-    const it=hist.find(x=>x.id===e.target.dataset.id); if(!it) return;
-    it.placar=e.target.value.trim();
-    const av=avaliar(it);
-    const antes=it.status;
-    it.status = (av&&!av.pendente) ? (av.bateu?'Green':'Red') : 'Aberto';
-    if(it.simulado && antes!==it.status){
-      carteira.transacoes=carteira.transacoes.filter(t=>!(t.ref===it.id&&t.tipo==='Retorno'));
-      if(it.status==='Green') carteira.transacoes.push({ts:Date.now(),tipo:'Retorno',ref:it.id,
-        desc:`Green — ${it.jogo}`, valor:+(it.stake*it.odd).toFixed(2)});
-      salvarCarteira();
+      html += `</tbody>`;
+      document.getElementById('matrix-table').innerHTML = html;
     }
-    salvarHist(); render();
-  }));
 
-  // --- Banca
-  let l=0,ap=0,g=0,r=0,ab=0;
-  hist.forEach(it=>{ if(it.status==='Aberto'){ab++;} else {l+=lucro(it);ap+=it.stake;it.status==='Green'?g++:r++;} });
-  const banca=cfg.banca+l;
-  const roi=ap>0?l/ap*100:0;
-  kpis.innerHTML=`
-    <div class="kpi"><div class="v ${l>=0?'pos':'neg'}">R$ ${banca.toFixed(2)}</div><div class="l">Banca</div></div>
-    <div class="kpi"><div class="v ${l>=0?'pos':'neg'}">${l>=0?'+':''}${l.toFixed(2)}</div><div class="l">Resultado</div></div>
-    <div class="kpi"><div class="v ${roi>=0?'pos':'neg'}">${roi.toFixed(0)}%</div><div class="l">Retorno sobre apostado</div></div>
-    <div class="kpi"><div class="v pos">${g}</div><div class="l">Bateram</div></div>
-    <div class="kpi"><div class="v neg">${r}</div><div class="l">Não bateram</div></div>
-    <div class="kpi"><div class="v warn">${ab}</div><div class="l">Aguardando</div></div>`;
+    // -------------------------------------------------------------
+    // MÓDULO 2: BET BUILDER
+    // -------------------------------------------------------------
+    function oddBetBuilder(p, marginPercent = 8) {
+      if (p <= 0) return 1.0;
+      const fairOdd = 1 / p;
+      const margin = marginPercent / 100;
+      const adjustedOdd = fairOdd / (1 + margin);
+      return Math.max(1.01, Math.round(adjustedOdd * 100) / 100);
+    }
 
-  // --- Limites, Kelly e alertas
-  const hoje=new Date().toDateString();
-  const doDia=hist.filter(x=>new Date(x.data).toDateString()===hoje);
-  const resDia=doDia.filter(x=>x.status!=='Aberto').reduce((s,x)=>s+lucro(x),0);
-  const expDia=doDia.filter(x=>x.status==='Aberto').reduce((s,x)=>s+x.stake,0);
-  const pctDia=cfg.banca>0?resDia/cfg.banca*100:0;
-  const limiteDia=banca*0.20;
-  // Kelly com a probabilidade do próprio sistema: como ela vem das odds da
-  // casa, o resultado é sempre negativo. Mostramos isso em vez de esconder.
-  const ult=hist.find(x=>x.prob&&x.status==='Aberto');
-  let kellyTxt='';
-  if(ult){
-    const b=ult.odd-1, f=(ult.prob*b-(1-ult.prob))/b;
-    const sug=Math.max(0,f*0.25*banca);
-    kellyTxt=`<p class="sm">Kelly no último bilhete aberto (odd ${ult.odd.toFixed(2)}, chance ${(ult.prob*100).toFixed(1)}%): 
-      <b class="${f>0?'pos':'neg'}">${(f*100).toFixed(1)}%</b> da banca${f<=0?' — ou seja, o critério diz para não apostar, porque a chance estimada não cobre a margem da casa.':` → com fator 0,25 daria R$ ${sug.toFixed(2)}.`}</p>`;
-  }
-  limites.innerHTML=`
-    <div class="grid2">
-      <div class="kpi"><div class="v ${pctDia>=0?'pos':'neg'}">${pctDia>=0?'+':''}${pctDia.toFixed(1)}%</div><div class="l">Resultado de hoje</div></div>
-      <div class="kpi"><div class="v ${expDia>limiteDia?'neg':'warn'}">R$ ${expDia.toFixed(2)}</div><div class="l">Exposto hoje<br>(limite R$ ${limiteDia.toFixed(2)})</div></div>
-    </div>
-    ${pctDia<=-15?'<div class="msg er"><b>PARAR IMEDIATAMENTE.</b> A banca caiu 15% ou mais hoje.</div>':''}
-    ${pctDia>=30?'<div class="msg ok"><b>CONSIDERAR PARAR.</b> A banca subiu 30% ou mais hoje.</div>':''}
-    ${expDia>limiteDia?'<div class="msg wa">Exposição do dia acima de 20% da banca.</div>':''}
-    ${kellyTxt}`;
+    function montar(oddMin, oddMax) {
+      const checkboxes = Array.from(document.querySelectorAll('.bb-check:checked'));
+      if (checkboxes.length === 0) return null;
 
-  // --- Acerto por competição
-  const porC={};
-  hist.filter(x=>x.status!=='Aberto'&&!x.legado).forEach(x=>{
-    const k=x.multi?'Multi-jogo':(x.jogo||'').split(' x ')[0]?'Jogo único':'—';
-    porC[k]=porC[k]||{ok:0,n:0,l:0};
-    porC[k].n++; if(x.status==='Green') porC[k].ok++;
-    porC[k].l+=lucro(x);
-  });
-  const ec=Object.entries(porC);
-  porLiga.innerHTML = ec.length ? ec.map(([k,c])=>
-    `<div class="row" style="justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);">
-      <span style="font-size:13px;">${k}</span>
-      <span class="sm ${c.l>=0?'pos':'neg'}">${c.ok}/${c.n} · ${c.l>=0?'+':''}R$ ${c.l.toFixed(2)}</span>
-    </div>`).join('') : '<p>Sem bilhetes liquidados ainda.</p>';
+      const items = checkboxes.map(cb => ({
+        id: cb.value,
+        nome: cb.dataset.name,
+        p: parseFloat(cb.dataset.prob)
+      }));
 
-  // --- Acerto por mercado (que linha costuma bater)
-  const cont={};
-  hist.forEach(it=>{
-    const av=avaliar(it); if(!av) return;
-    av.res.forEach(x=>{
-      if(x.ok===null) return;
-      cont[x.nome]=cont[x.nome]||{ok:0,n:0};
-      cont[x.nome].n++; if(x.ok) cont[x.nome].ok++;
-    });
-  });
-  const linhas=Object.entries(cont).sort((a,b)=>b[1].n-a[1].n);
-  porMercado.innerHTML = linhas.length ? linhas.map(([n,c])=>{
-    const pct=c.ok/c.n*100;
-    return `<div style="padding:7px 0;border-bottom:1px solid var(--border);">
-      <div class="row" style="justify-content:space-between;">
-        <span style="font-size:13px;">${n}</span>
-        <span class="sm ${pct>=50?'pos':'neg'}">${c.ok}/${c.n} · ${pct.toFixed(0)}%</span></div>
-      <div class="prog"><span style="width:${pct}%;background:${pct>=50?'var(--green)':'var(--red)'}"></span></div>
-    </div>`;
-  }).join('') + '<p class="sm" style="margin-top:8px;">Com poucos bilhetes esses números variam muito. Só faz sentido tirar conclusão depois de algumas dezenas.</p>'
-    : '<p>Preencha o placar de alguns bilhetes para ver quais linhas mais batem.</p>';
-}
+      const combinations = [];
+      const n = items.length;
+      for (let i = 1; i < (1 << n); i++) {
+        const combo = [];
+        for (let j = 0; j < n; j++) {
+          if ((i >> j) & 1) combo.push(items[j]);
+        }
+        combinations.push(combo);
+      }
 
-/* ---------- Ações ---------- */
-['filtroStatus','filtroTipo'].forEach(id=>{
-  const elf=document.getElementById(id);
-  if(elf) elf.addEventListener('click',e=>{
-    if(e.target.tagName!=='BUTTON') return;
-    fHist[id==='filtroStatus'?'status':'tipo']=e.target.dataset.f;
-    [...e.currentTarget.children].forEach(b=>b.classList.toggle('active',b===e.target));
-    render();
-  });
-});
+      let melhor = null;
+      combinations.forEach(c => {
+        const product = c.reduce((acc, curr) => acc * curr.p, 1);
+        const correlationFactor = Math.pow(1.12, c.length - 1);
+        const p = Math.min(0.95, product * correlationFactor);
+        const nomes = c.map(item => item.nome);
+        const odd = oddBetBuilder(p);
 
-/* ---------- Cache e modo manual ---------- */
-document.getElementById('bLimparCache').addEventListener('click',()=>{
-  limparCache();
-  autoStatus.innerHTML='<div class="msg nt">Cache limpo. A pr\u00f3xima busca vai consultar a API de novo.</div>';
-});
+        if (odd >= oddMin && odd <= oddMax) {
+          if (!melhor || p > melhor.p) {
+            melhor = { linhas: c, nomes, p, odd, produto: product };
+          }
+        }
+      });
+      return melhor;
+    }
 
-/* Modo manual: monta um jogo a partir das odds digitadas e usa exatamente o
-   mesmo motor. Nenhum cr\u00e9dito \u00e9 consumido, porque as probabilidades sempre
-   vieram das odds \u2014 a API s\u00f3 servia para busc\u00e1-las automaticamente. */
-document.getElementById('bManual').addEventListener('click',()=>{
-  const st=manualStatus;
-  const casa=mn_casa.value.trim(), fora=mn_fora.value.trim();
-  const oc=parseFloat(mn_oc.value), oe=parseFloat(mn_oe.value), of=parseFloat(mn_of.value);
-  const ov=parseFloat(mn_ov.value), un=parseFloat(mn_un.value);
-  const bk=mn_bk.value.trim()||'Manual';
-  if(!casa||!fora){ st.innerHTML='<div class="msg wa">Preencha os dois times.</div>'; return; }
-  if(!(oc>1&&oe>1&&of>1)){ st.innerHTML='<div class="msg wa">As tr\u00eas odds do resultado s\u00e3o obrigat\u00f3rias e devem ser maiores que 1.</div>'; return; }
-  const somaInv=1/oc+1/oe+1/of;
-  if(somaInv<1){ st.innerHTML='<div class="msg er">Essas odds somam menos de 100% de probabilidade, o que nenhuma casa oferece. Confira os valores.</div>'; return; }
-  const temOU = ov>1 && un>1;
-  const j={casa,fora,id:'manual',inicio:new Date(Date.now()+3600000).toISOString(),
-    porCasa:{manual:Object.assign({casa:oc,empate:oe,fora:of}, temOU?{over25:ov,under25:un}:{})},
-    media:{casa:oc,empate:oe,fora:of,over25:temOU?ov:null,under25:temOU?un:null},
-    casasBR:['manual'], casas:1,
-    o:{casa:{odd:oc},empate:{odd:oe},fora:{odd:of},
-       over25:{odd:temOU?ov:null},under25:{odd:temOU?un:null}}};
-  CASAS_BR.manual=bk;
-  jogos=[j];
-  st.innerHTML='<div class="msg ok">Margem embutida nessas odds: '+((somaInv-1)*100).toFixed(1)+'%.'+
-    (temOU?'':'<br>Sem as odds de Mais/Menos 2.5 o c\u00e1lculo de gols fica menos preciso.')+'</div>';
-  gerar(0);
-});
+    function executarMontagem() {
+      const oddMin = parseFloat(document.getElementById('bb-odd-min').value) || 1.5;
+      const oddMax = parseFloat(document.getElementById('bb-odd-max').value) || 5.0;
 
-document.getElementById('bCfg').addEventListener('click',salvarCfg);
-document.getElementById('bLimpar').addEventListener('click',()=>{
-  if(confirm('Apagar os bilhetes que você gerou? A base histórica dos 56 é mantida.')){
-    hist=hist.filter(x=>x.legado); salvarHist(); render(); }
-});
-document.getElementById('bCSV').addEventListener('click',()=>{
-  const L=[['data','jogo','tipo','odd','stake','linhas','placar','status','lucro']];
-  hist.forEach(it=>L.push([it.data,it.jogo,it.tipo,it.odd,it.stake,
-    '"'+it.linhas.join(' + ')+'"',it.placar,it.status,lucro(it)]));
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(new Blob([L.map(x=>x.join(';')).join('\n')],{type:'text/csv'}));
-  a.download='quantfut.csv'; a.click();
-});
+      const res = montar(oddMin, oddMax);
+      const resDiv = document.getElementById('bb-result');
 
-load(); loadCarteira(); render(); renderMulti(); carregarCompeticoes(); setTimeout(mostrarCota,1500);
-</script>
+      if (!res) {
+        resDiv.classList.remove('hidden');
+        document.getElementById('bb-result-lines').innerHTML = `<span class="text-rose-400">Nenhuma combinação encontrada na faixa de odds [${oddMin} - ${oddMax}]. Selecione mais opções ou ajuste as odds.</span>`;
+        document.getElementById('bb-res-p').innerText = '-';
+        document.getElementById('bb-res-odd').innerText = '-';
+        return;
+      }
+
+      resDiv.classList.remove('hidden');
+      document.getElementById('bb-result-lines').innerHTML = res.nomes.map(n => `<div>• ${n}</div>`).join('');
+      document.getElementById('bb-res-p').innerText = (res.p * 100).toFixed(1) + '%';
+      document.getElementById('bb-res-odd').innerText = res.odd.toFixed(2);
+      window.lastBetBuilder = res;
+    }
+
+    function adicionarBetBuilderACarteira() {
+      if (!window.lastBetBuilder) return;
+      const stake = 20.0;
+      const odd = window.lastBetBuilder.odd;
+      const win = Math.random() < window.lastBetBuilder.p;
+      const profit = win ? stake * (odd - 1) : -stake;
+
+      AppState.transacoes.push({
+        data: new Date().toLocaleDateString('pt-BR'),
+        nome: 'Bet Builder: ' + window.lastBetBuilder.nomes.join(' + '),
+        odd: odd,
+        stake: stake,
+        p: window.lastBetBuilder.p,
+        win: win,
+        profit: profit
+      });
+
+      AppState.bancaAtual += profit;
+      atualizarCarteiraUI();
+      alert(`Aposta simulada! Resultado: ${win ? 'GANHA (+' + profit.toFixed(2) + ')' : 'PERDIDA (-' + stake.toFixed(2) + ')'}`);
+    }
+
+    // -------------------------------------------------------------
+    // MÓDULO 3: MÚLTIPLAS & SISTEMAS
+    // -------------------------------------------------------------
+    function addSystemInput() {
+      const container = document.getElementById('system-inputs');
+      const count = container.children.length + 1;
+      const div = document.createElement('div');
+      div.className = 'flex items-center gap-2';
+      div.innerHTML = `
+        <input type="text" value="Jogo ${count} (2.00)" class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white">
+        <input type="number" step="0.05" value="2.00" class="sys-odd w-24 bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white text-center" oninput="calcularSistemas()">
+      `;
+      container.appendChild(div);
+      calcularSistemas();
+    }
+
+    function removeSystemInput() {
+      const container = document.getElementById('system-inputs');
+      if (container.children.length > 2) {
+        container.removeChild(container.lastChild);
+        calcularSistemas();
+      }
+    }
+
+    function getCombinations(arr, k) {
+      const results = [];
+      function helper(start, combo) {
+        if (combo.length === k) {
+          results.push(combo);
+          return;
+        }
+        for (let i = start; i < arr.length; i++) {
+          helper(i + 1, combo.concat([arr[i]]));
+        }
+      }
+      helper(0, []);
+      return results;
+    }
+
+    function calcularSistemas() {
+      const oddInputs = document.querySelectorAll('.sys-odd');
+      const odds = Array.from(oddInputs).map(i => parseFloat(i.value) || 1.0);
+      const stakePerBet = parseFloat(document.getElementById('sys-stake').value) || 10;
+      const n = odds.length;
+
+      let html = '';
+
+      const oddMulti = odds.reduce((a, b) => a * b, 1);
+      const retornoMulti = stakePerBet * oddMulti;
+      html += `<div class="p-2.5 bg-slate-800 rounded-lg border border-slate-700">
+        <div class="font-bold text-white">Aposta Múltipla (${n} Jogos)</div>
+        <div>Odd Total: <span class="text-emerald-400 font-bold">${oddMulti.toFixed(2)}</span></div>
+        <div>Custo Total: R$ ${stakePerBet.toFixed(2)} | Retorno Max: <span class="text-emerald-400">R$ ${retornoMulti.toFixed(2)}</span></div>
+      </div>`;
+
+      if (n === 3) {
+        const duplas = getCombinations(odds, 2);
+        const triplas = getCombinations(odds, 3);
+        const totalApostas = duplas.length + triplas.length;
+        const totalCost = totalApostas * stakePerBet;
+        
+        let maxRet = 0;
+        duplas.forEach(c => maxRet += stakePerBet * c[0] * c[1]);
+        triplas.forEach(c => maxRet += stakePerBet * c[0] * c[1] * c[2]);
+
+        html += `<div class="p-2.5 bg-slate-800 rounded-lg border border-slate-700 mt-2">
+          <div class="font-bold text-blue-400">Sistema Trixie (4 Apostas)</div>
+          <div class="text-[11px] text-slate-400">3 Duplas + 1 Tripla</div>
+          <div>Custo Total: R$ ${totalCost.toFixed(2)} | Retorno Max: <span class="text-emerald-400">R$ ${maxRet.toFixed(2)}</span></div>
+        </div>`;
+      }
+
+      if (n === 4) {
+        const duplas = getCombinations(odds, 2);
+        const triplas = getCombinations(odds, 3);
+        const quad = getCombinations(odds, 4);
+        const totalApostas = duplas.length + triplas.length + quad.length;
+        const totalCost = totalApostas * stakePerBet;
+
+        let maxRet = 0;
+        duplas.forEach(c => maxRet += stakePerBet * c[0] * c[1]);
+        triplas.forEach(c => maxRet += stakePerBet * c[0] * c[1] * c[2]);
+        quad.forEach(c => maxRet += stakePerBet * c[0] * c[1] * c[2] * c[3]);
+
+        html += `<div class="p-2.5 bg-slate-800 rounded-lg border border-slate-700 mt-2">
+          <div class="font-bold text-purple-400">Sistema Yankee (11 Apostas)</div>
+          <div class="text-[11px] text-slate-400">6 Duplas + 4 Triplas + 1 Quádrupla</div>
+          <div>Custo Total: R$ ${totalCost.toFixed(2)} | Retorno Max: <span class="text-emerald-400">R$ ${maxRet.toFixed(2)}</span></div>
+        </div>`;
+      }
+
+      document.getElementById('systems-output').innerHTML = html;
+    }
+
+    // -------------------------------------------------------------
+    // MÓDULO 4: API & DADOS MOCK
+    // -------------------------------------------------------------
+    function carregarJogosMock() {
+      const mockMatches = [
+        { home: 'Flamengo', away: 'Palmeiras', o1: 2.10, ox: 3.20, o2: 3.40, xgH: 1.75, xgA: 1.20 },
+        { home: 'Real Madrid', away: 'Barcelona', o1: 2.00, ox: 3.50, o2: 3.30, xgH: 1.85, xgA: 1.45 },
+        { home: 'Arsenal', away: 'Chelsea', o1: 1.75, ox: 3.60, o2: 4.50, xgH: 1.90, xgA: 1.00 }
+      ];
+      renderMatches(mockMatches);
+      document.getElementById('api-status').innerText = 'Status: Dados fictícios (Mock) carregados com sucesso.';
+    }
+
+    function renderMatches(matches) {
+      const container = document.getElementById('jogos-container');
+      container.innerHTML = matches.map((m, idx) => `
+        <div class="bg-slate-800/80 p-4 rounded-xl border border-slate-700/60 shadow hover:border-slate-500 transition space-y-3">
+          <div class="flex justify-between items-center text-xs font-semibold text-slate-400 border-b border-slate-700 pb-2">
+            <span>Partida #${idx + 1}</span>
+            <span class="text-blue-400">Ao Vivo / Próximo</span>
+          </div>
+          <div class="flex justify-between items-center text-sm font-bold text-white">
+            <span>${m.home}</span>
+            <span class="text-xs font-normal text-slate-400">vs</span>
+            <span>${m.away}</span>
+          </div>
+          <div class="grid grid-cols-3 gap-2 text-center text-xs">
+            <div class="bg-slate-900/80 p-2 rounded border border-slate-700">
+              <span class="text-slate-400 block">Casa</span>
+              <span class="font-bold text-emerald-400">${m.o1.toFixed(2)}</span>
+            </div>
+            <div class="bg-slate-900/80 p-2 rounded border border-slate-700">
+              <span class="text-slate-400 block">Empate</span>
+              <span class="font-bold text-amber-400">${m.ox.toFixed(2)}</span>
+            </div>
+            <div class="bg-slate-900/80 p-2 rounded border border-slate-700">
+              <span class="text-slate-400 block">Fora</span>
+              <span class="font-bold text-rose-400">${m.o2.toFixed(2)}</span>
+            </div>
+          </div>
+          <button onclick="carregarNoPoisson('${m.home}', '${m.away}', ${m.xgH}, ${m.xgA})" class="w-full bg-slate-700 hover:bg-slate-600 text-xs text-white py-1.5 rounded transition">Analisar no Modelo Poisson</button>
+        </div>
+      `).join('');
+    }
+
+    function carregarNoPoisson(home, away, xgH, xgA) {
+      document.getElementById('p-home-name').value = home;
+      document.getElementById('p-away-name').value = away;
+      document.getElementById('p-xg-home').value = xgH;
+      document.getElementById('p-xg-away').value = xgA;
+      switchTab('poisson');
+      calcularPoisson();
+    }
+
+    async function buscarOddsAPI() {
+      const apiKey = document.getElementById('api-key').value;
+      if (!apiKey) {
+        alert('Insira uma chave válida para The Odds API.');
+        return;
+      }
+      localStorage.setItem('quantfut_apikey', apiKey);
+      document.getElementById('api-status').innerText = 'Status: Consultando API...';
+
+      try {
+        const sport = document.getElementById('api-sport').value;
+        const res = await fetch(`https://api.the-odds-api.com/v4/sports/${sport}/odds/?apiKey=${apiKey}&regions=eu&markets=h2h`);
+        if (!res.ok) throw new Error('Falha na resposta da API.');
+        const data = await res.json();
+
+        const matches = data.slice(0, 6).map(item => {
+          const bookmaker = item.bookmakers[0];
+          const market = bookmaker ? bookmaker.markets.find(m => m.key === 'h2h') : null;
+          let o1 = 2.0, ox = 3.2, o2 = 3.0;
+          if (market) {
+            market.outcomes.forEach(out => {
+              if (out.name === item.home_team) o1 = out.price;
+              else if (out.name === item.away_team) o2 = out.price;
+              else ox = out.price;
+            });
+          }
+          return {
+            home: item.home_team,
+            away: item.away_team,
+            o1: o1, ox: ox, o2: o2,
+            xgH: (1.5 + Math.random() * 0.8).toFixed(2),
+            xgA: (1.0 + Math.random() * 0.6).toFixed(2)
+          };
+        });
+
+        renderMatches(matches);
+        document.getElementById('api-status').innerText = `Status: ${matches.length} partidas obtidas via API!`;
+      } catch (err) {
+        document.getElementById('api-status').innerText = 'Status: Erro ao consultar API. Carregando mock fallback.';
+        carregarJogosMock();
+      }
+    }
+
+    // -------------------------------------------------------------
+    // MÓDULO 5: CARTEIRA & MÉTRICAS (BRIER, LOG-LOSS, ROI)
+    // -------------------------------------------------------------
+    function atualizarCarteiraUI() {
+      const txs = AppState.transacoes;
+      const banca = AppState.bancaAtual;
+      const profitTotal = banca - AppState.bancaInicial;
+      const roi = ((profitTotal / AppState.bancaInicial) * 100).toFixed(2);
+
+      document.getElementById('header-banca').innerText = `R$ ${banca.toFixed(2)}`;
+      document.getElementById('header-roi').innerText = `${roi >= 0 ? '+' : ''}${roi}%`;
+      document.getElementById('header-roi').className = `text-lg font-bold ${roi >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
+
+      document.getElementById('m-total').innerText = txs.length;
+
+      if (txs.length === 0) {
+        document.getElementById('m-winrate').innerText = '0%';
+        document.getElementById('m-profit').innerText = 'R$ 0,00';
+        document.getElementById('m-brier').innerText = '0.000';
+        document.getElementById('m-logloss').innerText = '0.000';
+        return;
+      }
+
+      const wins = txs.filter(t => t.win).length;
+      const winRate = ((wins / txs.length) * 100).toFixed(1);
+      document.getElementById('m-winrate').innerText = `${winRate}%`;
+
+      document.getElementById('m-profit').innerText = `R$ ${profitTotal.toFixed(2)}`;
+      document.getElementById('m-profit').className = `font-bold ${profitTotal >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
+
+      let brierSum = 0;
+      let logLossSum = 0;
+
+      txs.forEach(t => {
+        const y = t.win ? 1 : 0;
+        const p = t.p || (1 / t.odd);
+        brierSum += Math.pow(p - y, 2);
+
+        const clampedP = Math.max(0.001, Math.min(0.999, p));
+        logLossSum += -(y * Math.log(clampedP) + (1 - y) * Math.log(1 - clampedP));
+      });
+
+      const brierScore = (brierSum / txs.length).toFixed(4);
+      const logLoss = (logLossSum / txs.length).toFixed(4);
+
+      document.getElementById('m-brier').innerText = brierScore;
+      document.getElementById('m-logloss').innerText = logLoss;
+
+      const tbody = document.getElementById('tx-table-body');
+      tbody.innerHTML = txs.map(t => `
+        <tr>
+          <td class="p-2">${t.data}</td>
+          <td class="p-2 font-medium">${t.nome}</td>
+          <td class="p-2 text-center">${t.odd.toFixed(2)}</td>
+          <td class="p-2 text-center">R$ ${t.stake.toFixed(2)}</td>
+          <td class="p-2 text-center">
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold ${t.win ? 'bg-emerald-900/80 text-emerald-300' : 'bg-rose-900/80 text-rose-300'}">
+              ${t.win ? 'GANHA' : 'PERDIDA'}
+            </span>
+          </td>
+          <td class="p-2 text-right font-bold ${t.profit >= 0 ? 'text-emerald-400' : 'text-rose-400'}">
+            ${t.profit >= 0 ? '+' : ''}R$ ${t.profit.toFixed(2)}
+          </td>
+        </tr>
+      `).join('');
+
+      renderChart();
+    }
+
+    function renderChart() {
+      const svg = document.getElementById('chart-svg');
+      let history = [AppState.bancaInicial];
+      let acc = AppState.bancaInicial;
+
+      AppState.transacoes.forEach(t => {
+        acc += t.profit;
+        history.push(acc);
+      });
+
+      const min = Math.min(...history) * 0.95;
+      const max = Math.max(...history) * 1.05;
+      const width = 500;
+      const height = 150;
+
+      const points = history.map((val, idx) => {
+        const x = (idx / (history.length - 1 || 1)) * width;
+        const y = height - ((val - min) / (max - min || 1)) * height;
+        return `${x},${y}`;
+      }).join(' ');
+
+      svg.innerHTML = `
+        <polyline fill="none" stroke="#3b82f6" stroke-width="3" points="${points}" />
+      `;
+    }
+
+    function resetarCarteira() {
+      if (confirm('Deseja zerar todo o histórico de apostas e reiniciar a banca?')) {
+        AppState.bancaAtual = AppState.bancaInicial;
+        AppState.transacoes = [];
+        atualizarCarteiraUI();
+      }
+    }
+
+    // Inicializador
+    window.onload = function() {
+      calcularPoisson();
+      carregarJogosMock();
+      calcularSistemas();
+      atualizarCarteiraUI();
+    };
+  </script>
 </body>
 </html>
