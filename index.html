@@ -1,868 +1,866 @@
+Aqui está o código completo limpo e unificado com o CSS incorporado. Basta copiar todo o conteúdo abaixo e colar no seu arquivo index.html no GitHub:
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>QuantFut Auto - Análise Quantitativa & Gestão de Apostas</title>
-  <!-- Tailwind CSS via CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
+  <title>QuantFut Auto</title>
   <style>
-    body { background-color: #0f172a; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; }
-    ::-webkit-scrollbar { width: 8px; height: 8px; }
-    ::-webkit-scrollbar-track { background: #1e293b; }
-    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-    .tab-btn.active { border-bottom: 3px solid #3b82f6; color: #60a5fa; font-weight: 600; }
+    :root { 
+      --bg: #070c14; 
+      --panel: #101a29; 
+      --panel2: #152238; 
+      --text: #edf3fa; 
+      --muted: #8ea0b8; 
+      --green: #29d17f; 
+      --red: #ff5d6c; 
+      --yellow: #f2c94c; 
+      --blue: #5da8ff; 
+      --border: #1c2b40; 
+      --mint: #1fe0a0; 
+      --mint-dk: #0b7a57; 
+      --ink: #04140e; 
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body { 
+      margin: 0px; 
+      background: var(--bg); 
+      color: var(--text); 
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; 
+    }
+
+    body { padding-bottom: 30px; }
+
+    h1 { font-size: 19px; margin: 0px 0px 10px; }
+
+    h2 { font-size: 16px; margin: 0px 0px 8px; }
+
+    h3 { font-size: 14px; margin: 0px 0px 6px; color: var(--blue); }
+
+    p { margin: 5px 0px; color: var(--muted); font-size: 13px; line-height: 1.55; }
+
+    .wrap { max-width: 700px; margin: 0px auto; padding: 12px; }
+
+    button { cursor: pointer; font-family: inherit; }
+
+    input, select { 
+      font-family: inherit; 
+      width: 100%; 
+      background: var(--panel2); 
+      color: var(--text); 
+      border: 1px solid var(--border); 
+      border-radius: 9px; 
+      padding: 10px; 
+      font-size: 15px; 
+      min-height: 46px; 
+    }
+
+    input:focus, select:focus { outline: 2px solid var(--blue); }
+
+    label { display: block; font-size: 12px; color: var(--muted); margin: 10px 0px 5px; }
+
+    .tabbar { position: sticky; top: 0px; display: flex; background: var(--panel); border-bottom: 1px solid var(--border); z-index: 50; }
+
+    .tabbtn { 
+      flex: 1 1 0%; 
+      background: none; 
+      border: none; 
+      border-bottom: 3px solid transparent; 
+      color: var(--muted); 
+      padding: 10px 4px; 
+      font-size: 11px; 
+      display: flex; 
+      flex-direction: column; 
+      align-items: center; 
+      gap: 3px; 
+      min-height: 56px; 
+    }
+
+    .tabbtn.active { color: var(--text); border-bottom-color: var(--blue); }
+
+    .tabbtn .ic { font-size: 19px; }
+
+    .tabpage { display: none; }
+
+    .tabpage.active { display: block; }
+
+    .card { background: var(--panel); border: 1px solid var(--border); border-radius: 13px; padding: 15px; margin-bottom: 12px; }
+
+    .btn { 
+      background: var(--blue); 
+      color: rgb(4, 16, 31); 
+      border: none; 
+      border-radius: 9px; 
+      width: 100%; 
+      padding: 13px; 
+      font-weight: 600; 
+      font-size: 15px; 
+      min-height: 48px; 
+    }
+
+    .btn.sec { background: var(--panel2); color: var(--text); border: 1px solid var(--border); }
+
+    .btn.dan { background: var(--red); color: rgb(26, 5, 8); }
+
+    .btn.sm { padding: 8px 12px; min-height: 40px; font-size: 13px; width: auto; }
+
+    .btn:disabled { opacity: 0.45; }
+
+    .row { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    .row > * { width: auto; }
+
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+    .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+
+    .kpi { background: var(--panel2); border-radius: 10px; padding: 11px; text-align: center; }
+
+    .kpi .v { font-size: 20px; font-weight: 700; }
+
+    .kpi .l { font-size: 10px; color: var(--muted); margin-top: 3px; line-height: 1.3; }
+
+    .pos { color: var(--green); }
+
+    .neg { color: var(--red); }
+
+    .warn { color: var(--yellow); }
+
+    .inf { color: var(--blue); }
+
+    .linha { display: flex; align-items: center; gap: 10px; background: var(--panel2); border-radius: 10px; padding: 11px; margin-bottom: 7px; border-left: 4px solid var(--border); }
+
+    .linha.ok { border-left-color: var(--green); }
+
+    .linha.no { border-left-color: var(--red); }
+
+    .linha .nm { flex: 1 1 0%; font-size: 14px; font-weight: 600; }
+
+    .linha .dt { font-size: 11px; color: var(--muted); margin-top: 3px; font-weight: 400; }
+
+    .linha .od { font-size: 15px; font-weight: 700; color: var(--blue); }
+
+    .linha .mk { font-size: 20px; }
+
+    .msg { border-radius: 10px; padding: 11px; margin: 9px 0px; font-size: 13px; line-height: 1.55; }
+
+    .msg.ok { background: rgba(41, 209, 127, 0.12); border: 1px solid var(--green); color: var(--green); }
+
+    .msg.er { background: rgba(255, 93, 108, 0.12); border: 1px solid var(--red); color: var(--red); }
+
+    .msg.wa { background: rgba(242, 201, 76, 0.12); border: 1px solid var(--yellow); color: var(--yellow); }
+
+    .msg.nt { background: rgba(93, 168, 255, 0.12); border: 1px solid var(--blue); color: var(--blue); }
+
+    .bil { background: var(--panel2); border-radius: 11px; padding: 12px; margin-bottom: 10px; }
+
+    .bil-h { display: flex; justify-content: space-between; align-items: center; font-size: 14px; font-weight: 600; gap: 8px; }
+
+    .bil-s { font-size: 11px; color: var(--muted); margin: 5px 0px 8px; }
+
+    .badge { padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+
+    .badge.g { background: rgba(41, 209, 127, 0.18); color: var(--green); }
+
+    .badge.r { background: rgba(255, 93, 108, 0.18); color: var(--red); }
+
+    .badge.y { background: rgba(242, 201, 76, 0.18); color: var(--yellow); }
+
+    .prog { height: 7px; background: var(--panel2); border-radius: 4px; overflow: hidden; margin: 8px 0px; }
+
+    .prog span { display: block; height: 100%; background: var(--blue); transition: width 0.25s; }
+
+    .sm { font-size: 11px; color: var(--muted); line-height: 1.5; }
+
+    hr { border: none; border-top: 1px solid var(--border); margin: 12px 0px; }
+
+    .duelo { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 16px; margin-bottom: 12px; }
+
+    .duelo-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+
+    .duelo-time { flex: 1 1 0%; text-align: center; }
+
+    .duelo-esc { width: 52px; height: 52px; border-radius: 50%; margin: 0px auto 7px; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 700; background: var(--panel2); border: 1px solid var(--border); }
+
+    .duelo-nome { font-size: 12px; font-weight: 600; line-height: 1.25; }
+
+    .duelo-placar { font-size: 34px; font-weight: 800; letter-spacing: -1px; white-space: nowrap; }
+
+    .duelo-tag { display: inline-block; margin-top: 5px; padding: 4px 11px; border-radius: 20px; background: rgba(31, 224, 160, 0.14); color: var(--mint); font-size: 10px; font-weight: 700; letter-spacing: 0.7px; }
+
+    .dupla { display: grid; grid-template-columns: 1fr 1.4fr; gap: 10px; margin-bottom: 12px; }
+
+    .conf { background: var(--panel); border: 1px solid var(--border); border-radius: 13px; padding: 13px; }
+
+    .conf-l { font-size: 10px; color: var(--muted); letter-spacing: 0.8px; font-weight: 700; }
+
+    .conf-v { font-size: 27px; font-weight: 800; margin: 6px 0px 8px; }
+
+    .conf-bar { height: 6px; background: var(--panel2); border-radius: 3px; overflow: hidden; }
+
+    .conf-bar span { display: block; height: 100%; border-radius: 3px; }
+
+    .dest { border-radius: 13px; padding: 13px; background: var(--mint); color: var(--ink); display: flex; flex-direction: column; justify-content: space-between; }
+
+    .dest.frio { background: var(--panel2); color: var(--text); border: 1px solid var(--border); }
+
+    .dest-l { font-size: 10px; font-weight: 800; letter-spacing: 0.8px; opacity: 0.75; }
+
+    .dest-v { font-size: 17px; font-weight: 800; line-height: 1.2; margin: 6px 0px; }
+
+    .dest-o { font-size: 12px; font-weight: 700; opacity: 0.8; }
+
+    .mkt { display: flex; align-items: center; gap: 11px; background: var(--panel2); border: 1px solid var(--border); border-radius: 12px; padding: 11px; margin-bottom: 8px; }
+
+    .mkt-ico { width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; }
+
+    .mkt-ico.up { background: rgba(31, 224, 160, 0.16); color: var(--mint); }
+
+    .mkt-ico.dn { background: rgba(255, 93, 108, 0.16); color: var(--red); }
+
+    .mkt-nm { flex: 1 1 0%; font-size: 13px; font-weight: 600; line-height: 1.3; }
+
+    .mkt-sub { font-size: 10px; color: var(--muted); margin-top: 2px; }
+
+    .mkt-num { text-align: right; font-size: 11px; line-height: 1.6; white-space: nowrap; }
+
+    .mkt-num b { font-size: 13px; }
+
+    .mkt-add { width: 38px; height: 38px; border-radius: 10px; border: none; flex-shrink: 0; background: var(--mint); color: var(--ink); font-size: 20px; font-weight: 700; line-height: 1; }
+
+    .mkt-add.on { background: var(--red); color: rgb(255, 255, 255); }
+
+    .pchave { background: var(--panel2); border: 1px solid var(--border); border-radius: 12px; padding: 13px; }
+
+    .pchave li { font-size: 13px; color: var(--text); line-height: 1.5; margin-bottom: 8px; list-style: none; padding-left: 15px; position: relative; }
+
+    .pchave li::before { content: ""; position: absolute; left: 0px; top: 7px; width: 5px; height: 5px; border-radius: 50%; background: var(--mint); }
+
+    .pchave li:last-child { margin-bottom: 0px; }
+
+    .secao { font-size: 11px; letter-spacing: 1.2px; color: var(--muted); font-weight: 700; margin: 16px 0px 8px; }
+
+    .subtabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 12px; }
+
+    .subtab { flex: 1 1 0%; background: none; border: none; border-bottom: 2px solid transparent; color: var(--muted); padding: 10px 4px; font-size: 13px; font-weight: 600; min-height: 42px; }
+
+    .subtab.active { color: var(--text); border-bottom-color: var(--mint); }
   </style>
 </head>
-<body class="min-h-screen flex flex-col">
-  <!-- Cabeçalho -->
-  <header class="bg-slate-900 border-b border-slate-800 p-4 sticky top-0 z-50 shadow-md">
-    <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
-      <div class="flex items-center gap-3">
-        <div class="p-2 bg-blue-600 rounded-lg text-white font-bold text-xl">QF</div>
-        <div>
-          <h1 class="text-xl font-bold tracking-wide text-white">QuantFut Auto</h1>
-          <p class="text-xs text-slate-400">Análise Quantitativa, Simulação & Gestão de Apostas</p>
-        </div>
-      </div>
-      <!-- Resumo da Banca -->
-      <div class="flex items-center gap-6 bg-slate-800/80 px-4 py-2 rounded-xl border border-slate-700">
-        <div>
-          <span class="text-xs text-slate-400 block">Banca Atual</span>
-          <span id="header-banca" class="text-lg font-bold text-emerald-400">R$ 1.000,00</span>
-        </div>
-        <div class="border-l border-slate-700 pl-4">
-          <span class="text-xs text-slate-400 block">ROI Geral</span>
-          <span id="header-roi" class="text-lg font-bold text-blue-400">+0.00%</span>
-        </div>
+<body>
+
+<div class="tabbar">
+  <button class="tabbtn active" data-t="auto"><span class="ic">🤖</span>Auto</button>
+  <button class="tabbtn" data-t="jogos"><span class="ic">⚽</span>Jogos</button>
+  <button class="tabbtn" data-t="bilhete"><span class="ic">🎫</span>Bilhete</button>
+  <button class="tabbtn" data-t="multi"><span class="ic">🧩</span>Multi</button>
+  <button class="tabbtn" data-t="hist"><span class="ic">📚</span>Histórico</button>
+  <button class="tabbtn" data-t="carteira"><span class="ic">💰</span>Carteira</button>
+  <button class="tabbtn" data-t="evol"><span class="ic">📈</span>Evolução</button>
+  <button class="tabbtn" data-t="banca"><span class="ic">📊</span>Banca</button>
+</div>
+
+<div class="wrap">
+
+<section id="t-jogos" class="tabpage">
+  <div class="card">
+    <h1>Escolher jogo</h1>
+    <label>Competição</label>
+    <select id="comp">
+      <optgroup label="Brasil e América do Sul">
+        <option value="soccer_brazil_campeonato">Brasileirão Série A</option>
+        <option value="soccer_brazil_serie_b">Brasileirão Série B</option>
+        <option value="soccer_conmebol_copa_libertadores">Copa Libertadores</option>
+        <option value="soccer_conmebol_copa_sudamericana">Copa Sudamericana</option>
+        <option value="soccer_argentina_primera_division">Primera División (Argentina)</option>
+        <option value="soccer_chile_campeonato">Primera División (Chile)</option>
+      </optgroup>
+      <optgroup label="Competições europeias">
+        <option value="soccer_uefa_champs_league">Champions League</option>
+        <option value="soccer_uefa_europa_conference_league">Conference League</option>
+        <option value="soccer_uefa_europa_league">Europa League</option>
+        <option value="soccer_uefa_nations_league">Liga das Nações</option>
+      </optgroup>
+      <optgroup label="Grandes ligas europeias">
+        <option value="soccer_germany_bundesliga">Bundesliga</option>
+        <option value="soccer_spain_la_liga">La Liga</option>
+        <option value="soccer_france_ligue_one">Ligue 1</option>
+        <option value="soccer_epl">Premier League</option>
+        <option value="soccer_italy_serie_a">Serie A (Itália)</option>
+      </optgroup>
+      <optgroup label="Outras ligas europeias">
+        <option value="soccer_germany_liga3">3. Liga</option>
+        <option value="soccer_sweden_allsvenskan">Allsvenskan (Suécia)</option>
+        <option value="soccer_austria_bundesliga">Bundesliga (Áustria)</option>
+        <option value="soccer_germany_bundesliga2">Bundesliga 2</option>
+        <option value="soccer_efl_champ">Championship (Inglaterra)</option>
+        <option value="soccer_germany_dfb_pokal">Copa da Alemanha</option>
+        <option value="soccer_england_efl_cup">Copa da Liga Inglesa</option>
+        <option value="soccer_norway_eliteserien">Eliteserien (Noruega)</option>
+        <option value="soccer_netherlands_eredivisie">Eredivisie</option>
+        <option value="soccer_belgium_first_div">Jupiler Pro (Bélgica)</option>
+        <option value="soccer_spain_segunda_division">La Liga 2</option>
+        <option value="soccer_england_league1">League One</option>
+        <option value="soccer_england_league2">League Two</option>
+        <option value="soccer_league_of_ireland">Liga da Irlanda</option>
+        <option value="soccer_france_ligue_two">Ligue 2</option>
+        <option value="soccer_spl">Premiership (Escócia)</option>
+        <option value="soccer_portugal_primeira_liga">Primeira Liga (Portugal)</option>
+        <option value="soccer_italy_serie_b">Serie B (Itália)</option>
+        <option value="soccer_greece_super_league">Super League (Grécia)</option>
+        <option value="soccer_switzerland_superleague">Super League (Suíça)</option>
+        <option value="soccer_turkey_super_league">Süper Lig (Turquia)</option>
+        <option value="soccer_sweden_superettan">Superettan (Suécia)</option>
+        <option value="soccer_denmark_superliga">Superliga (Dinamarca)</option>
+        <option value="soccer_finland_veikkausliiga">Veikkausliiga (Finlândia)</option>
+      </optgroup>
+      <optgroup label="Américas e resto do mundo">
+        <option value="soccer_australia_aleague">A-League</option>
+        <option value="soccer_korea_kleague1">K League 1</option>
+        <option value="soccer_mexico_ligamx">Liga MX</option>
+        <option value="soccer_usa_mls">MLS</option>
+      </optgroup>
+    </select>
+    <div id="stComp"><p class="sm">43 competições de futebol com mercado aberto agora. A lista vem da própria API — se uma liga estiver em recesso, ela não aparece aqui.</p></div>
+    <button class="btn" id="bCarregar" style="margin-top:12px;">Carregar jogos</button>
+    <div class="prog" id="pr" style="display:none;"><span style="width:0%"></span></div>
+    <div id="stJogos"></div>
+  </div>
+  <div id="listaJogos"></div>
+</section>
+
+<section id="t-bilhete" class="tabpage">
+  <div id="bilheteConteudo">
+    <div class="card"><h1>Bilhete</h1><p>Escolha um jogo na aba Jogos.</p></div>
+  </div>
+</section>
+
+<section id="t-auto" class="tabpage active">
+  <div class="card">
+    <h1>Ciclo automático</h1>
+    <div id="cotaInfo">
+      <div class="msg er">
+        Créditos da API: <b>0</b> restantes neste mês (500 usados).<br>
+        Cota esgotada. Use o <b>modo manual</b> abaixo para continuar operando sem API.
       </div>
     </div>
-  </header>
+    <p>Gera bilhetes para todos os jogos carregados, registra na banca virtual e verifica o resultado quando você informar o placar.</p>
+    <label>Competição</label>
+    <select id="autoComp">
+      <optgroup label="Brasil e América do Sul">
+        <option value="soccer_brazil_campeonato">Brasileirão Série A</option>
+        <option value="soccer_brazil_serie_b">Brasileirão Série B</option>
+        <option value="soccer_conmebol_copa_libertadores">Copa Libertadores</option>
+        <option value="soccer_conmebol_copa_sudamericana">Copa Sudamericana</option>
+        <option value="soccer_argentina_primera_division">Primera División (Argentina)</option>
+        <option value="soccer_chile_campeonato">Primera División (Chile)</option>
+      </optgroup>
+      <optgroup label="Competições europeias">
+        <option value="soccer_uefa_champs_league">Champions League</option>
+        <option value="soccer_uefa_europa_conference_league">Conference League</option>
+        <option value="soccer_uefa_europa_league">Europa League</option>
+        <option value="soccer_uefa_nations_league">Liga das Nações</option>
+      </optgroup>
+      <optgroup label="Grandes ligas europeias">
+        <option value="soccer_germany_bundesliga">Bundesliga</option>
+        <option value="soccer_spain_la_liga">La Liga</option>
+        <option value="soccer_france_ligue_one">Ligue 1</option>
+        <option value="soccer_epl">Premier League</option>
+        <option value="soccer_italy_serie_a">Serie A (Itália)</option>
+      </optgroup>
+      <optgroup label="Outras ligas europeias">
+        <option value="soccer_germany_liga3">3. Liga</option>
+        <option value="soccer_sweden_allsvenskan">Allsvenskan (Suécia)</option>
+        <option value="soccer_austria_bundesliga">Bundesliga (Áustria)</option>
+        <option value="soccer_germany_bundesliga2">Bundesliga 2</option>
+        <option value="soccer_efl_champ">Championship (Inglaterra)</option>
+        <option value="soccer_germany_dfb_pokal">Copa da Alemanha</option>
+        <option value="soccer_england_efl_cup">Copa da Liga Inglesa</option>
+        <option value="soccer_norway_eliteserien">Eliteserien (Noruega)</option>
+        <option value="soccer_netherlands_eredivisie">Eredivisie</option>
+        <option value="soccer_belgium_first_div">Jupiler Pro (Bélgica)</option>
+        <option value="soccer_spain_segunda_division">La Liga 2</option>
+        <option value="soccer_england_league1">League One</option>
+        <option value="soccer_england_league2">League Two</option>
+        <option value="soccer_league_of_ireland">Liga da Irlanda</option>
+        <option value="soccer_france_ligue_two">Ligue 2</option>
+        <option value="soccer_spl">Premiership (Escócia)</option>
+        <option value="soccer_portugal_primeira_liga">Primeira Liga (Portugal)</option>
+        <option value="soccer_italy_serie_b">Serie B (Itália)</option>
+        <option value="soccer_greece_super_league">Super League (Grécia)</option>
+        <option value="soccer_switzerland_superleague">Super League (Suíça)</option>
+        <option value="soccer_turkey_super_league">Süper Lig (Turquia)</option>
+        <option value="soccer_sweden_superettan">Superettan (Suécia)</option>
+        <option value="soccer_denmark_superliga">Superliga (Dinamarca)</option>
+        <option value="soccer_finland_veikkausliiga">Veikkausliiga (Finlândia)</option>
+      </optgroup>
+      <optgroup label="Américas e resto do mundo">
+        <option value="soccer_australia_aleague">A-League</option>
+        <option value="soccer_korea_kleague1">K League 1</option>
+        <option value="soccer_mexico_ligamx">Liga MX</option>
+        <option value="soccer_usa_mls">MLS</option>
+      </optgroup>
+    </select>
+    <label>Bilhetes por jogo (máximo)</label>
+    <input type="number" min="1" max="50" id="autoMax" value="12">
+    <label>Aposta simulada por bilhete (R$)</label>
+    <input type="number" step="0.5" id="autoStake" value="2">
+    <label>Mercados extras (escanteios, cartões, placar exato, jogadores)</label>
+    <select id="autoExtras">
+      <option value="nao">Não buscar (1 crédito por ciclo)</option>
+      <option value="sim">Buscar por jogo (gasta ~6 créditos por jogo)</option>
+      <option value="jog">Buscar com jogadores (~10 créditos por jogo)</option>
+    </select>
+    <p class="sm">Escanteios, cartões e jogadores vêm de um endpoint separado, cobrado por jogo. Eles não podem ser conferidos pelo placar — você informa os totais no Histórico.</p>
+    <button class="btn" id="bRodar" style="margin-top:12px;">Rodar ciclo</button>
+    <div class="prog" id="autoPr" style="display:none;"><span style="width:0%"></span></div>
+    <div id="autoStatus"></div>
+    <button class="btn sec sm" id="bLimparCache" style="margin-top:10px;width:100%;">Limpar cache de odds</button>
+  </div>
 
-  <!-- Navegação por Abas -->
-  <nav class="bg-slate-900/90 border-b border-slate-800 backdrop-blur sticky top-[73px] z-40">
-    <div class="max-w-7xl mx-auto flex overflow-x-auto text-sm text-slate-400 px-4">
-      <button onclick="switchTab('jogos')" id="tab-jogos" class="tab-btn active px-5 py-3 whitespace-nowrap hover:text-slate-200">⚽ Jogos & API</button>
-      <button onclick="switchTab('poisson')" id="tab-poisson" class="tab-btn px-5 py-3 whitespace-nowrap hover:text-slate-200">📊 Modelo xG (Poisson)</button>
-      <button onclick="switchTab('builder')" id="tab-builder" class="tab-btn px-5 py-3 whitespace-nowrap hover:text-slate-200">🛠️ Bet Builder</button>
-      <button onclick="switchTab('sistemas')" id="tab-sistemas" class="tab-btn px-5 py-3 whitespace-nowrap hover:text-slate-200">🎲 Múltiplas & Sistemas</button>
-      <button onclick="switchTab('carteira')" id="tab-carteira" class="tab-btn px-5 py-3 whitespace-nowrap hover:text-slate-200">💰 Carteira & Métricas</button>
+  <div class="card">
+    <h2>Modo manual (sem gastar crédito)</h2>
+    <p>Digite as odds que você vê na casa de apostas. O sistema calcula tudo igual — as probabilidades sempre saíram das odds, não da API.</p>
+    <div class="grid2">
+      <div><label>Mandante</label><input id="mn_casa" placeholder="Time da casa"></div>
+      <div><label>Visitante</label><input id="mn_fora" placeholder="Time visitante"></div>
+      <div><label>Odd mandante</label><input type="number" step="0.01" id="mn_oc" placeholder="1.95"></div>
+      <div><label>Odd empate</label><input type="number" step="0.01" id="mn_oe" placeholder="3.30"></div>
+      <div><label>Odd visitante</label><input type="number" step="0.01" id="mn_of" placeholder="4.00"></div>
+      <div><label>Casa de apostas</label><input id="mn_bk" placeholder="Betano" value="Manual"></div>
+      <div><label>Odd Mais de 2.5</label><input type="number" step="0.01" id="mn_ov" placeholder="2.10"></div>
+      <div><label>Odd Menos de 2.5</label><input type="number" step="0.01" id="mn_un" placeholder="1.75"></div>
     </div>
-  </nav>
+    <button class="btn" id="bManual" style="margin-top:12px;">Gerar bilhetes</button>
+    <div id="manualStatus"></div>
+  </div>
+  <div id="autoResumo"></div>
+  <div class="card" id="autoFiltros" style="display:none;">
+    <div class="filterbar" id="fTipo">
+      <button class="active" data-f="all">Todos</button>
+      <button data-f="Equilibrado">Equilibrado</button>
+      <button data-f="Intermediário">Intermediário</button>
+      <button data-f="Super Oddão">Super Oddão</button>
+      <button data-f="Múltipla">Múltipla</button>
+    </div>
+  </div>
+  <div id="autoLista"></div>
+</section>
 
-  <!-- Conteúdo Principal -->
-  <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 space-y-6">
-
-    <!-- ABA 1: JOGOS & API -->
-    <section id="sec-jogos" class="tab-content space-y-6">
-      <div class="bg-slate-800/50 p-5 rounded-2xl border border-slate-700/60 shadow-xl">
-        <h2 class="text-lg font-semibold mb-3 text-slate-200 flex items-center gap-2">⚙️ Configuração The Odds API</h2>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <label class="block text-xs font-medium text-slate-400 mb-1">Chave da API (API Key)</label>
-            <input type="password" id="api-key" placeholder="Insira sua chave API" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
-          </div>
-          <div>
-            <label class="block text-xs font-medium text-slate-400 mb-1">Liga / Competição</label>
-            <select id="api-sport" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
-              <option value="soccer_brazil_campeonato">Brasileirão Série A</option>
-              <option value="soccer_epl">Premier League (Inglaterra)</option>
-              <option value="soccer_spain_la_liga">La Liga (Espanha)</option>
-              <option value="soccer_uefa_champs_league">Champions League</option>
-            </select>
-          </div>
-          <div class="flex items-end gap-2">
-            <button onclick="buscarOddsAPI()" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium py-2 rounded-lg transition shadow">Buscar Odds</button>
-            <button onclick="carregarJogosMock()" class="bg-slate-700 hover:bg-slate-600 text-slate-200 text-sm font-medium py-2 px-3 rounded-lg transition">Usar Mock</button>
-          </div>
-        </div>
-        <div class="mt-3 text-xs text-slate-400 flex justify-between items-center">
-          <span id="api-status">Status: Aguardando requisição...</span>
-          <span id="api-quota">Cache local: Ativo (localStorage)</span>
-        </div>
+<section id="t-carteira" class="tabpage">
+  <div class="card">
+    <h1>Carteira virtual</h1>
+    <div class="grid3" id="cartKpis">
+      <div class="kpi"><div class="v pos">R$ 1000.00</div><div class="l">Saldo</div></div>
+      <div class="kpi"><div class="v warn">R$ 0.00</div><div class="l">Exposto</div></div>
+      <div class="kpi"><div class="v pos">+R$ 0.00</div><div class="l">Resultado</div></div>
+      <div class="kpi"><div class="v">0</div><div class="l">Liquidados</div></div>
+      <div class="kpi"><div class="v warn">0</div><div class="l">Abertos</div></div>
+      <div class="kpi"><div class="v neg">0%</div><div class="l">ROI</div></div>
+    </div>
+  </div>
+  <div class="card">
+    <h2>Relatório do dia</h2>
+    <div id="relDia">
+      <div class="grid2">
+        <div class="kpi"><div class="v">0</div><div class="l">Abertos hoje</div></div>
+        <div class="kpi"><div class="v">0</div><div class="l">Fechados hoje</div></div>
+        <div class="kpi"><div class="v pos">0</div><div class="l">Green</div></div>
+        <div class="kpi"><div class="v neg">0</div><div class="l">Red</div></div>
+        <div class="kpi"><div class="v pos">+R$ 0.00</div><div class="l">Resultado</div></div>
+        <div class="kpi"><div class="v neg">0%</div><div class="l">ROI do dia</div></div>
       </div>
+    </div>
+  </div>
+  <div class="card">
+    <h2>Evolução da banca</h2>
+    <div id="graficoBanca"><p>Liquide alguns bilhetes para ver a curva.</p></div>
+  </div>
+  <div class="card">
+    <h2>Transações</h2>
+    <div id="transacoes"><p>Nenhuma transação.</p></div>
+  </div>
+</section>
 
-      <div id="jogos-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <!-- Cards dinâmicos das partidas -->
+<section id="t-evol" class="tabpage">
+  <div class="card">
+    <h1>Evolução do sistema</h1>
+    <div id="indicador"><div class="msg nt">Rode um ciclo e informe placares no Histórico para o sistema começar a medir.</div></div>
+  </div>
+  <div class="card"><h2>Qualidade das previsões</h2><div id="calib"></div></div>
+  <div class="card"><h2>Desempenho por ciclo</h2><div id="ciclos"></div></div>
+  <div class="card"><h2>Combinações com melhor retorno</h2><div id="topCombos"></div></div>
+</section>
+
+<section id="t-multi" class="tabpage">
+  <div class="card">
+    <h1>Multi-jogo</h1>
+    <p>Junte seleções de jogos diferentes. Aqui a matemática é limpa: jogos distintos são independentes, então a chance combinada é o produto real e a casa paga o produto das odds.</p>
+    <div id="selCount"><div class="msg nt">Nenhuma seleção. Gere um bilhete na aba Jogos e toque em "+ Multi-jogo".</div></div>
+  </div>
+  <div id="selecoes"></div>
+  <div class="card" id="cardTipo" style="display:none;">
+    <h2>Tipo de aposta</h2>
+    <label>Formato</label>
+    <select id="tipoMulti"></select>
+    <label>Valor total a apostar (R$)</label>
+    <input type="number" step="0.5" id="stakeMulti" value="10">
+    <button class="btn" id="bCalcular" style="margin-top:12px;">Calcular</button>
+  </div>
+  <div id="resultadoMulti"></div>
+</section>
+
+<section id="t-hist" class="tabpage">
+  <div class="card">
+    <h1>Histórico</h1>
+    <p>Digite o placar final e o sistema marca linha por linha o que bateu.</p>
+    <div class="filterbar" id="filtroStatus">
+      <button class="active" data-f="all">Todos</button>
+      <button data-f="Green">Green</button>
+      <button data-f="Red">Red</button>
+      <button data-f="Aberto">Aberto</button>
+    </div>
+    <div class="filterbar" id="filtroTipo">
+      <button class="active" data-f="all">Todos tipos</button>
+      <button data-f="Equilibrado">Equilibrado</button>
+      <button data-f="Intermediário">Intermediário</button>
+      <button data-f="Super Oddão">Super Oddão</button>
+      <button data-f="Múltipla">Múltipla</button>
+    </div>
+    <button class="btn" id="bResultados" style="margin-top:10px;">Buscar resultados dos jogos encerrados</button>
+    <div id="resStatus"></div>
+    <div class="row" style="margin-top:10px;">
+      <button class="btn sec sm" id="bCSV">Exportar CSV</button>
+      <button class="btn dan sm" id="bLimpar">Limpar tudo</button>
+    </div>
+  </div>
+  <div id="listaHist">
+    <div class="card">
+      <div class="bil-h"><span>Al Ain x Al Nassr</span><span class="badge g">Green</span></div>
+      <div class="bil-s">Equilibrado · odd 4.50 · R$ 1.50 · 15/09 · <b class="pos">+R$ 5.25</b></div>
+      <p class="sm">Bilhete anterior ao sistema — mantido só para o histórico da banca.</p>
+    </div>
+    <div class="card">
+      <div class="bil-h"><span>Al Ain x Al Nassr</span><span class="badge r">Red</span></div>
+      <div class="bil-s">Super Oddão · odd 13.50 · R$ 0.50 · 15/09 · <b class="neg">R$ -0.50</b></div>
+      <p class="sm">Bilhete anterior ao sistema — mantido só para o histórico da banca.</p>
+    </div>
+    <div class="card">
+      <div class="bil-h"><span>Al Hilal x Al Gharafa</span><span class="badge r">Red</span></div>
+      <div class="bil-s">Equilibrado · odd 4.05 · R$ 2.00 · 15/09 · <b class="neg">R$ -2.00</b></div>
+      <p class="sm">Bilhete anterior ao sistema — mantido só para o histórico da banca.</p>
+    </div>
+    <div class="card">
+      <div class="bil-h"><span>Al Hilal x Al Gharafa</span><span class="badge r">Red</span></div>
+      <div class="bil-s">Super Oddão · odd 10.50 · R$ 0.50 · 15/09 · <b class="neg">R$ -0.50</b></div>
+      <p class="sm">Bilhete anterior ao sistema — mantido só para o histórico da banca.</p>
+    </div>
+    <div class="card">
+      <div class="bil-h"><span>Guoan x Pohang</span><span class="badge r">Red</span></div>
+      <div class="bil-s">Equilibrado · odd 4.10 · R$ 1.50 · 15/09 · <b class="neg">R$ -1.50</b></div>
+      <p class="sm">Bilhete anterior ao sistema — mantido só para o histórico da banca.</p>
+    </div>
+    <div class="card">
+      <div class="bil-h"><span>Guoan x Pohang</span><span class="badge r">Red</span></div>
+      <div class="bil-s">Super Oddão · odd 12.50 · R$ 0.25 · 15/09 · <b class="neg">R$ -0.25</b></div>
+      <p class="sm">Bilhete anterior ao sistema — mantido só para o histórico da banca.</p>
+    </div>
+    <div class="card">
+      <div class="bil-h"><span>Ipswich x Arsenal</span><span class="badge g">Green</span></div>
+      <div class="bil-s">Equilibrado · odd 4.50 · R$ 1.50 · 15/09 · <b class="pos">+R$ 5.25</b></div>
+      <p class="sm">Bilhete anterior ao sistema — mantido só para o histórico da banca.</p>
+    </div>
+    <div class="card">
+      <div class="bil-h"><span>Ipswich x Arsenal</span><span class="badge r">Red</span></div>
+      <div class="bil-s">Super Oddão · odd 8.56 · R$ 0.50 · 15/09 · <b class="neg">R$ -0.50</b></div>
+      <p class="sm">Bilhete anterior ao sistema — mantido só para o histórico da banca.</p>
+    </div>
+    <div class="card">
+      <div class="bil-h"><span>Liverpool x Tottenham</span><span class="badge g">Green</span></div>
+      <div class="bil-s">Equilibrado · odd 4.49 · R$ 1.50 · 15/09 · <b class="pos">+R$ 5.24</b></div>
+      <p class="sm">Bilhete anterior ao sistema — mantido só para o histórico da banca.</p>
+    </div>
+    <div class="card">
+      <div class="bil-h"><span>Liverpool x Tottenham</span><span class="badge g">Green</span></div>
+      <div class="bil-s">Super Oddão · odd 10.50 · R$ 0.50 · 15/09 · <b class="pos">+R$ 4.75</b></div>
+      <p class="sm">Bilhete anterior ao sistema — mantido só para o histórico da banca.</p>
+    </div>
+    <div class="card">
+      <div class="bil-h"><span>Elche x Real Madrid</span><span class="badge r">Red</span></div>
+      <div class="bil-s">Equilibrado · odd 4.01 · R$ 2.00 · 15/09 · <b class="neg">R$ -2.00</b></div>
+      <p class="sm">Bilhete anterior ao sistema — mantido só para o histórico da banca.</p>
+    </div>
+    <div class="card">
+      <div class="bil-h"><span>Elche x Real Madrid</span><span class="badge g">Green</span></div>
+      <div class="bil-s">Super Oddão · odd 8.82 · R$ 0.50 · 15/09 · <b class="pos">+R$ 3.91</b></div>
+      <p class="sm">Bilhete anterior ao sistema — mantido só para o histórico da banca.</p>
+    </div>
+    <div class="card">
+      <div class="bil-h"><span>Platense x Fluminense</span><span class="badge g">Green</span></div>
+      <div class="bil-s">Equilibrado · odd 3.80 · R$ 1.75 · 15/09 · <b class="pos">+R$ 4.90</b></div>
+      <p class="sm">Bilhete anterior ao sistema — mantido só para o histórico da banca.</p>
+    </div>
+    <div class="card">
+      <div class="bil-h"><span>Platense x Fluminense</span><span class="badge r">Red</span></div>
+      <div class="bil-s">Super Oddão · odd 8.40 · R$ 0.30 · 15/09 · <b class="neg">R$ -0.30</b></div>
+      <p class="sm">Bilhete anterior ao sistema — mantido só para o histórico da banca.</p>
+    </div>
+    <div class="card">
+      <div class="bil-h"><span>Vasco x Santa Fe</span><span class="badge r">Red</span></div>
+      <div class="bil-s">Equilibrado · odd 4.05 · R$ 1.75 · 15/09 · <b class="neg">R$ -1.75</b></div>
+      <p class="sm">Bilhete anterior ao sistema — mantido só para o histórico da banca.</p>
+    </div>
+    <div class="card">
+      <div class="bil-h"><span>Vasco x Santa Fe</span><span class="badge r">Red</span></div>
+      <div class="bil-s">Super Oddão · odd 9.20 · R$ 0.60 · 15/09 · <b class="neg">R$ -0.60</b></div>
+      <p class="sm">Bilhete anterior ao sistema — mantido só para o histórico da banca.</p>
+    </div>
+    <div class="card">
+      <div class="bil-h"><span>São Paulo x Boca</span><span class="badge r">Red</span></div>
+      <div class="bil-s">Equilibrado · odd 4.35 · R$ 1.75 · 15/09 · <b class="neg">R$ -1.75</b></div>
+      <p class="sm">Bilhete anterior ao sistema — mantido só para o histórico da banca.</p>
+    </div>
+    <div class="card">
+      <div class="bil-h"><span>São Paulo x Boca</span><span class="badge r">Red</span></div>
+      <div class="bil-s">Super Oddão · odd 10.80 · R$ 0.30 · 15/09 · <b class="neg">R$ -0.30</b></div>
+      <p class="sm">Bilhete anterior ao sistema — mantido só para o histórico da banca.</p>
+    </div>
+    <div class="card">
+      <div class="bil-h"><span>Londrina x Ponte Preta</span><span class="badge r">Red</span></div>
+      <div class="bil-s">Equilibrado · odd 4.10 · R$ 1.75 · 15/09 · <b class="neg">R$ -1.75</b></div>
+      <p class="sm">Bilhete anterior ao sistema — mantido só para o histórico da banca.</p>
+    </div>
+    <div class="card">
+      <div class="bil-h"><span>Londrina x Ponte Preta</span><span class="badge r">Red</span></div>
+      <div class="bil-s">Super Oddão · odd 9.50 · R$ 0.30 · 15/09 · <b class="neg">R$ -0.30</b></div>
+      <p class="sm">Bilhete anterior ao sistema — mantido só para o histórico da banca.</p>
+    </div>
+    <div class="card">
+      <div class="bil-h"><span>Náutico x Operário</span><span class="badge r">Red</span></div>
+      <div class="bil-s">Equilibrado · odd 4.00 · R$ 1.75 · 15/09 · <b class="neg">R$ -1.75</b></div>
+      <p class="sm">Bilhete anterior ao sistema — mantido só para o histórico da banca.</p>
+    </div>
+    <div class="card">
+      <div class="bil-h"><span>Náutico x Operário</span><span class="badge r">Red</span></div>
+      <div class="bil-s">Super Oddão · odd 9.80 · R$ 0.30 · 15/09 · <b class="neg">R$ -0.30</b></div>
+      <p class="sm">Bilhete anterior ao sistema — mantido só para o histórico da banca.</p>
+    </div>
+    <div class="card">
+      <div class="bil-h"><span>CRB x Sport Recife</span><span class="badge g">Green</span></div>
+      <div class="bil-s">Equilibrado · odd 4.05 · R$ 1.75 · 15/09 · <b class="pos">+R$ 5.34</b></div>
+      <p class="sm">Bilhete anterior ao sistema — mantido só para o histórico da banca.</p>
+    </div>
+    <div class="card">
+      <div class="bil-h"><span>CRB x Sport Recife</span><span class="badge g">Green</span></div>
+      <div class="bil-s">Super Oddão · odd 9.50 · R$ 0.30 · 15/09 · <b class="pos">+R$ 2.55</b></div>
+      <p class="sm">Bilhete anterior ao sistema — mantido só para o histórico da banca.</p>
+    </div>
+    <div class="card">
+      <div class="bil-h"><span>Anderlecht x Lyon</span><span class="badge y">Aberto</span></div>
+      <div class="bil-s">Equilibrado · odd 4.30 · R$ 1.83 · 16/09</div>
+      <p class="sm">Bilhete anterior ao sistema — mantido só para o histórico da banca.</p>
+    </div>
+    <div class="card">
+      <div class="bil-h"><span>Anderlecht x Lyon</span><span class="badge y">Aberto</span></div>
+      <div class="bil-s">Super Oddão · odd 8.50 · R$ 0.31 · 16/09</div>
+      <p class="sm">Bilhete anterior ao sistema — mantido só para o histórico da banca.</p>
+    </div>
+    <div class="card">
+      <div class="bil-h"><span>Everton x Wolves</span><span class="badge r">Red</span></div>
+      <div class="bil-s">Equilibrado · odd 4.20 · R$ 1.83 · 16/09 · <b class="neg">R$ -1.83</b></div>
+      <p class="sm">Bilhete anterior ao sistema — mantido só para o histórico da banca.</p>
+    </div>
+    <div class="card">
+      <div class="bil-h"><span>Everton x Wolves</span><span class="badge r">Red</span></div>
+      <div class="bil-s">Super Oddão · odd 9.00 · R$ 0.31 · 16/09 · <b class="neg">R$ -0.31</b></div>
+      <p class="sm">Bilhete anterior ao sistema — mantido só para o histórico da banca.</p>
+    </div>
+    <div class="card">
+      <div class="bil-h"><span>Man Utd x Brighton</span><span class="badge g">Green</span></div>
+      <div class="bil-s">Equilibrado · odd 4.40 · R$ 1.83 · 16/09 · <b class="pos">+R$ 6.22</b></div>
+      <p class="sm">Bilhete anterior ao sistema — mantido só para o histórico da banca.</p>
+    </div>
+    <div class="card">
+      <div class="bil-h"><span>Man Utd x Brighton</span><span class="badge g">Green</span></div>
+      <div class="bil-s">Super Oddão · odd 9.50 · R$ 0.31 · 16/09 · <b class="pos">+R$ 2.63</b></div>
+      <p class="sm">Bilhete anterior ao sistema — mantido só para o histórico da banca.</p>
+    </div>
+    <div class="card">
+      <div class="bil-h"><span>AC Milan x Benfica</span><span class="badge y">Aberto</span></div>
+      <div class="bil-s">Equilibrado · odd 4.20 · R$ 1.83 · 16/09</div>
+      <p class="sm">Bilhete anterior ao sistema — mantido só para o histórico da banca.</p>
+    </div>
+    <div class="card">
+      <div class="bil-h"><span>AC Milan x Benfica</span><span class="badge y">Aberto</span></div>
+      <div class="bil-s">Super Oddão · odd 9.00 · R$ 0.31 · 16/09</div>
+      <p class="sm">Bilhete anterior ao sistema — mantido só para o histórico da banca.</p>
+    </div>
+    <div class="card">
+      <div class="bil-h"><span>Sunderland x AZ</span><span class="badge g">Green</span></div>
+      <div class="bil-s">Equilibrado · odd 4.00 · R$ 1.83 · 16/09 · <b class="pos">+R$ 5.49</b></div>
+      <p class="sm">Bilhete anterior ao sistema — mantido só para o histórico da banca.</p>
+    </div>
+    <div class="card">
+      <div class="bil-h"><span>Sunderland x AZ</span><span class="badge r">Red</span></div>
+      <div class="bil-s">Super Oddão · odd 8.50 · R$ 0.31 · 16/09 · <b class="neg">R$ -0.31</b></div>
+      <p class="sm">Bilhete anterior ao sistema — mantido só para o histórico da banca.</p>
+    </div>
+    <div class="card">
+      <div class="bil-h"><span>Atlético x Osasuna</span><span class="badge r">Red</span></div>
+      <div class="bil-s">Equilibrado · odd 3.80 · R$ 1.83 · 16/09 · <b class="neg">R$ -1.83</b></div>
+      <p class="sm">Bilhete anterior ao sistema — mantido só para o histórico da banca.</p>
+    </div>
+    <div class="card">
+      <div class="bil-h"><span>Atlético x Osasuna</span><span class="badge g">Green</span></div>
+      <div class="bil-s">Super Oddão · odd 8.00 · R$ 0.31 · 16/09 · <b class="pos">+R$ 2.17</b></div>
+      <p class="sm">Bilhete anterior ao sistema — mantido só para o histórico da banca.</p>
+    </div>
+    <div class="card">
+      <div class="bil-h"><span>Levante x Athletic</span><span class="badge y">Aberto</span></div>
+      <div class="bil-s">Equilibrado · odd 4.30 · R$ 1.83 · 16/09</div>
+      <p class="sm">Bilhete anterior ao sistema — mantido só para o histórico da banca.</p>
+    </div>
+    <div class="card">
+      <div class="bil-h"><span>Levante x Athletic</span><span class="badge y">Aberto</span></div>
+      <div class="bil-s">Super Oddão · odd 8.50 · R$ 0.31 · 16/09</div>
+      <p class="sm">Bilhete anterior ao sistema — mantido só para o histórico da banca.</p>
+    </div>
+    <div class="card">
+      <div class="bil-h"><span>Corinthians x Estudiantes</span><span class="badge y">Aberto</span></div>
+      <div class="bil-s">Equilibrado · odd 4.50 · R$ 1.83 · 16/09</div>
+      <p class="sm">Bilhete anterior ao sistema — mantido só para o histórico da banca.</p>
+    </div>
+    <div class="card">
+      <div class="bil-h"><span>Corinthians x Estudiantes</span><span class="badge y">Aberto</span></div>
+      <div class="bil-s">Super Oddão · odd 10.00 · R$ 0.31 · 16/09</div>
+      <p class="sm">Bilhete anterior ao sistema — mantido só para o histórico da banca.</p>
+    </div>
+    <div class="card">
+      <div class="bil-h"><span>Atlético-MG x Santos</span><span class="badge y">Aberto</span></div>
+      <div class="bil-s">Equilibrado · odd 4.20 · R$ 1.83 · 16/09</div>
+      <p class="sm">Bilhete anterior ao sistema — mantido só para o histórico da banca.</p>
+    </div>
+    <div class="card">
+      <div class="bil-h"><span>Atlético-MG x Santos</span><span class="badge y">Aberto</span></div>
+      <div class="bil-s">Super Oddão · odd 9.50 · R$ 0.31 · 16/09</div>
+      <p class="sm">Bilhete anterior ao sistema — mantido só para o histórico da banca.</p>
+    </div>
+    <div class="card">
+      <div class="bil-h"><span>Besiktas x Marseille</span><span class="badge y">Aberto</span></div>
+      <div class="bil-s">Equilibrado · odd 4.20 · R$ 3.03 · 17/09</div>
+      <p class="sm">Bilhete anterior ao sistema — mantido só para o histórico da banca.</p>
+    </div>
+    <div class="card">
+      <div class="bil-h"><span>Besiktas x Marseille</span><span class="badge y">Aberto</span></div>
+      <div class="bil-s">Super Oddão · odd 11.50 · R$ 0.91 · 17/09</div>
+      <p class="sm">Bilhete anterior ao sistema — mantido só para o histórico da banca.</p>
+    </div>
+    <div class="card">
+      <div class="bil-h"><span>Celtic x Ferencváros</span><span class="badge y">Aberto</span></div>
+      <div class="bil-s">Equilibrado · odd 4.40 · R$ 3.03 · 17/09</div>
+      <p class="sm">Bilhete anterior ao sistema — mantido só para o histórico da banca.</p>
+    </div>
+    <div class="card">
+      <div class="bil-h"><span>Celtic x Ferencváros</span><span class="badge y">Aberto</span></div>
+      <div class="bil-s">Super Oddão · odd 10.50 · R$ 0.91 · 17/09</div>
+      <p class="sm">Bilhete anterior ao sistema — mantido só para o histórico da banca.</p>
+    </div>
+    <div class="card">
+      <div class="bil-h"><span>Crystal Palace x Lech</span><span class="badge y">Aberto</span></div>
+      <div class="bil-s">Equilibrado · odd 4.50 · R$ 3.03 · 17/09</div>
+      <p class="sm">Bilhete anterior ao sistema — mantido só para o histórico da banca.</p>
+    </div>
+    <div class="card">
+      <div class="bil-h"><span>Crystal Palace x Lech</span><span class="badge y">Aberto</span></div>
+      <div class="bil-s">Super Oddão · odd 9.00 · R$ 0.91 · 17/09</div>
+      <p class="sm">Bilhete anterior ao sistema — mantido só para o histórico da banca.</p>
+    </div>
+    <div class="card">
+      <div class="bil-h"><span>Real Sociedad x Bournemouth</span><span class="badge y">Aberto</span></div>
+      <div class="bil-s">Equilibrado · odd 4.30 · R$ 3.03 · 17/09</div>
+      <p class="sm">Bilhete anterior ao sistema — mantido só para o histórico da banca.</p>
+    </div>
+    <div class="card">
+      <div class="bil-h"><span>Real Sociedad x Bournemouth</span><span class="badge y">Aberto</span></div>
+      <div class="bil-s">Super Oddão · odd 10.00 · R$ 0.91 · 17/09</div>
+      <p class="sm">Bilhete anterior ao sistema — mantido só para o histórico da banca.</p>
+    </div>
+    <div class="card">
+      <div class="bil-h"><span>Flamengo x Ind. del Valle</span><span class="badge y">Aberto</span></div>
+      <div class="bil-s">Equilibrado · odd 4.20 · R$ 3.03 · 17/09</div>
+      <p class="sm">Bilhete anterior ao sistema — mantido só para o histórico da banca.</p>
+    </div>
+    <div class="card">
+      <div class="bil-h"><span>Flamengo x Ind. del Valle</span><span class="badge y">Aberto</span></div>
+      <div class="bil-s">Super Oddão · odd 9.50 · R$ 0.91 · 17/09</div>
+      <p class="sm">Bilhete anterior ao sistema — mantido só para o histórico da banca.</p>
+    </div>
+    <div class="card">
+      <div class="bil-h"><span>Botafogo x Grêmio</span><span class="badge y">Aberto</span></div>
+      <div class="bil-s">Equilibrado · odd 4.00 · R$ 3.03 · 17/09</div>
+      <p class="sm">Bilhete anterior ao sistema — mantido só para o histórico da banca.</p>
+    </div>
+    <div class="card">
+      <div class="bil-h"><span>Botafogo x Grêmio</span><span class="badge y">Aberto</span></div>
+      <div class="bil-s">Super Oddão · odd 9.50 · R$ 0.91 · 17/09</div>
+      <p class="sm">Bilhete anterior ao sistema — mantido só para o histórico da banca.</p>
+    </div>
+    <div class="card">
+      <div class="bil-h"><span>Corinthians x Estudiantes</span><span class="badge y">Aberto</span></div>
+      <div class="bil-s">Equilibrado · odd 4.50 · R$ 3.03 · 17/09</div>
+      <p class="sm">Bilhete anterior ao sistema — mantido só para o histórico da banca.</p>
+    </div>
+    <div class="card">
+      <div class="bil-h"><span>Corinthians x Estudiantes</span><span class="badge y">Aberto</span></div>
+      <div class="bil-s">Super Oddão · odd 10.00 · R$ 0.91 · 17/09</div>
+      <p class="sm">Bilhete anterior ao sistema — mantido só para o histórico da banca.</p>
+    </div>
+  </div>
+</section>
+
+<section id="t-banca" class="tabpage">
+  <div class="card">
+    <h1>Banca</h1>
+    <div class="grid3" id="kpis">
+      <div class="kpi"><div class="v pos">R$ 133.37</div><div class="l">Banca</div></div>
+      <div class="kpi"><div class="v pos">+33.37</div><div class="l">Resultado</div></div>
+      <div class="kpi"><div class="v pos">98%</div><div class="l">Retorno sobre apostado</div></div>
+      <div class="kpi"><div class="v pos">12</div><div class="l">Bateram</div></div>
+      <div class="kpi"><div class="v neg">20</div><div class="l">Não bateram</div></div>
+      <div class="kpi"><div class="v warn">24</div><div class="l">Aguardando</div></div>
+    </div>
+  </div>
+  <div class="card">
+    <h2>Limites e risco</h2>
+    <div id="limites">
+      <div class="grid2">
+        <div class="kpi"><div class="v pos">+0.0%</div><div class="l">Resultado de hoje</div></div>
+        <div class="kpi"><div class="v warn">R$ 0.00</div><div class="l">Exposto hoje<br>(limite R$ 26.67)</div></div>
       </div>
-    </section>
+    </div>
+  </div>
+  <div class="card">
+    <h2>Acerto por mercado</h2>
+    <div id="porMercado"><p>Preencha o placar de alguns bilhetes para ver quais linhas mais batem.</p></div>
+  </div>
+  <div class="card">
+    <h2>Acerto por competição</h2>
+    <div id="porLiga"><p>Sem bilhetes liquidados ainda.</p></div>
+  </div>
+  <div class="card">
+    <h2>Configuração</h2>
+    <div class="msg wa">A chave da API fica escrita dentro deste arquivo. Quem receber o HTML consegue lê-la e gastar sua cota mensal. Não compartilhe o arquivo — se precisar enviar para alguém, troque a chave antes em the-odds-api.com.</div>
+    <label>Banca inicial (R$)</label>
+    <input type="number" step="10" id="cBanca" value="100">
+    <p class="sm">1u = 1% da banca. Equilibrado usa 2,5u e Super Oddão usa 0,75u.</p>
+    <button class="btn sm" id="bCfg" style="margin-top:12px;">Salvar</button>
+  </div>
+</section>
+
+</div>
 
-    <!-- ABA 2: MODELO POISSON / XG -->
-    <section id="sec-poisson" class="tab-content hidden space-y-6">
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Entradas do Modelo -->
-        <div class="bg-slate-800/50 p-5 rounded-2xl border border-slate-700/60 shadow-xl space-y-4">
-          <h2 class="text-lg font-semibold text-slate-200">⚽ Entradas xG & Parâmetros</h2>
-          <div>
-            <label class="block text-xs text-slate-400 mb-1">Equipe da Casa</label>
-            <input type="text" id="p-home-name" value="Flamengo" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white mb-2">
-            <label class="block text-xs text-slate-400 mb-1">xG Casa (&lambda;)</label>
-            <input type="number" step="0.05" id="p-xg-home" value="1.75" oninput="calcularPoisson()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white">
-          </div>
-          <div>
-            <label class="block text-xs text-slate-400 mb-1">Equipe Visitante</label>
-            <input type="text" id="p-away-name" value="Palmeiras" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white mb-2">
-            <label class="block text-xs text-slate-400 mb-1">xG Visitante (&mu;)</label>
-            <input type="number" step="0.05" id="p-xg-away" value="1.20" oninput="calcularPoisson()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white">
-          </div>
-          <div>
-            <label class="block text-xs text-slate-400 mb-1">Ajuste Dixon-Coles (&tau; / &rho;)</label>
-            <input type="number" step="0.01" id="p-tau" value="-0.04" oninput="calcularPoisson()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white">
-            <span class="text-[10px] text-slate-500">Ajusta correlação de placares baixos (0-0, 1-0, 0-1, 1-1).</span>
-          </div>
-          <button onclick="calcularPoisson()" class="w-full bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium py-2 rounded-lg transition">Recalcular Modelo</button>
-        </div>
-
-        <!-- Resultados e Matriz -->
-        <div class="lg:col-span-2 bg-slate-800/50 p-5 rounded-2xl border border-slate-700/60 shadow-xl space-y-6">
-          <h2 class="text-lg font-semibold text-slate-200">📈 Probabilidades & Odds Justas</h2>
-          
-          <div class="grid grid-cols-3 gap-3 text-center">
-            <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-700/50">
-              <span class="text-xs text-slate-400 block" id="lbl-p-home">Casa</span>
-              <span id="prob-1" class="text-lg font-bold text-emerald-400">0%</span>
-              <span id="fair-1" class="text-xs text-slate-400 block mt-1">Odd: -</span>
-            </div>
-            <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-700/50">
-              <span class="text-xs text-slate-400 block">Empate</span>
-              <span id="prob-x" class="text-lg font-bold text-amber-400">0%</span>
-              <span id="fair-x" class="text-xs text-slate-400 block mt-1">Odd: -</span>
-            </div>
-            <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-700/50">
-              <span class="text-xs text-slate-400 block" id="lbl-p-away">Fora</span>
-              <span id="prob-2" class="text-lg font-bold text-rose-400">0%</span>
-              <span id="fair-2" class="text-xs text-slate-400 block mt-1">Odd: -</span>
-            </div>
-          </div>
-
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
-            <div class="bg-slate-900/60 p-2.5 rounded-lg border border-slate-700/40">
-              <span class="text-xs text-slate-400 block">Over 2.5 Golos</span>
-              <span id="prob-o25" class="text-sm font-bold text-blue-400">0%</span>
-              <span id="fair-o25" class="text-[11px] text-slate-500 block">Odd: -</span>
-            </div>
-            <div class="bg-slate-900/60 p-2.5 rounded-lg border border-slate-700/40">
-              <span class="text-xs text-slate-400 block">Under 2.5 Golos</span>
-              <span id="prob-u25" class="text-sm font-bold text-blue-400">0%</span>
-              <span id="fair-u25" class="text-[11px] text-slate-500 block">Odd: -</span>
-            </div>
-            <div class="bg-slate-900/60 p-2.5 rounded-lg border border-slate-700/40">
-              <span class="text-xs text-slate-400 block">Ambas Marcam (Sim)</span>
-              <span id="prob-btts-yes" class="text-sm font-bold text-purple-400">0%</span>
-              <span id="fair-btts-yes" class="text-[11px] text-slate-500 block">Odd: -</span>
-            </div>
-            <div class="bg-slate-900/60 p-2.5 rounded-lg border border-slate-700/40">
-              <span class="text-xs text-slate-400 block">Ambas Marcam (Não)</span>
-              <span id="prob-btts-no" class="text-sm font-bold text-purple-400">0%</span>
-              <span id="fair-btts-no" class="text-[11px] text-slate-500 block">Odd: -</span>
-            </div>
-          </div>
-
-          <div>
-            <h3 class="text-sm font-semibold text-slate-300 mb-2">Matriz de Probabilidade de Placares (Casa x Visitante)</h3>
-            <div class="overflow-x-auto">
-              <table id="matrix-table" class="w-full text-center text-xs border-collapse">
-                <!-- Tabela inserida via JS -->
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ABA 3: BET BUILDER -->
-    <section id="sec-builder" class="tab-content hidden space-y-6">
-      <div class="bg-slate-800/50 p-5 rounded-2xl border border-slate-700/60 shadow-xl space-y-4">
-        <h2 class="text-lg font-semibold text-slate-200">🛠️ Criador de Apostas Correlacionadas (Bet Builder)</h2>
-        <p class="text-xs text-slate-400">Combine mercados do mesmo jogo. O algoritmo calcula a probabilidade ajustada e encontra a melhor combinação na faixa de odds pretendida.</p>
-        
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-slate-900/60 p-4 rounded-xl border border-slate-700/50">
-          <div>
-            <label class="block text-xs text-slate-400 mb-1">Odd Mínima Desejada</label>
-            <input type="number" step="0.1" id="bb-odd-min" value="2.00" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white">
-          </div>
-          <div>
-            <label class="block text-xs text-slate-400 mb-1">Odd Máxima Desejada</label>
-            <input type="number" step="0.1" id="bb-odd-max" value="4.50" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white">
-          </div>
-          <div>
-            <label class="block text-xs text-slate-400 mb-1">Margem do Bookmaker (%)</label>
-            <input type="number" step="1" id="bb-margin" value="8" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white">
-          </div>
-        </div>
-
-        <div class="space-y-2">
-          <h3 class="text-sm font-semibold text-slate-300">Selecione as Seleções a Combinar:</h3>
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs" id="bb-options">
-            <label class="flex items-center gap-2 bg-slate-900/80 p-3 rounded-lg border border-slate-700 cursor-pointer">
-              <input type="checkbox" value="1" data-name="Vitória Casa (1)" data-prob="0.52" class="bb-check rounded text-blue-600">
-              <span>Vitória Casa</span>
-            </label>
-            <label class="flex items-center gap-2 bg-slate-900/80 p-3 rounded-lg border border-slate-700 cursor-pointer">
-              <input type="checkbox" value="O2.5" data-name="Over 2.5 Golos" data-prob="0.55" class="bb-check rounded text-blue-600">
-              <span>Over 2.5 Golos</span>
-            </label>
-            <label class="flex items-center gap-2 bg-slate-900/80 p-3 rounded-lg border border-slate-700 cursor-pointer">
-              <input type="checkbox" value="BTTS" data-name="Ambas Marcam - Sim" data-prob="0.58" class="bb-check rounded text-blue-600">
-              <span>Ambas Marcam (Sim)</span>
-            </label>
-            <label class="flex items-center gap-2 bg-slate-900/80 p-3 rounded-lg border border-slate-700 cursor-pointer">
-              <input type="checkbox" value="C8.5" data-name="Mais de 8.5 Cantos" data-prob="0.65" class="bb-check rounded text-blue-600">
-              <span>Mais de 8.5 Cantos</span>
-            </label>
-            <label class="flex items-center gap-2 bg-slate-900/80 p-3 rounded-lg border border-slate-700 cursor-pointer">
-              <input type="checkbox" value="K4.5" data-name="Mais de 4.5 Cartões" data-prob="0.60" class="bb-check rounded text-blue-600">
-              <span>Mais de 4.5 Cartões</span>
-            </label>
-          </div>
-        </div>
-
-        <button onclick="executarMontagem()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-2.5 rounded-xl transition shadow-lg">⚡ Montar e Otimizar Bet Builder</button>
-
-        <div id="bb-result" class="hidden bg-slate-900/90 p-5 rounded-xl border border-emerald-500/40 space-y-3">
-          <h3 class="text-sm font-bold text-emerald-400 uppercase tracking-wider">Combinado Encontrado</h3>
-          <div id="bb-result-lines" class="text-sm text-slate-200 space-y-1"></div>
-          <div class="grid grid-cols-2 md:grid-cols-3 gap-3 pt-2 border-t border-slate-800">
-            <div>
-              <span class="text-xs text-slate-400 block">Probabilidade Ajustada</span>
-              <span id="bb-res-p" class="text-base font-bold text-white">0%</span>
-            </div>
-            <div>
-              <span class="text-xs text-slate-400 block">Odd Calculada</span>
-              <span id="bb-res-odd" class="text-base font-bold text-emerald-400">1.00</span>
-            </div>
-            <div class="col-span-2 md:col-span-1">
-              <button onclick="adicionarBetBuilderACarteira()" class="w-full bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold py-2 px-3 rounded-lg transition">Simular Aposta na Carteira</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ABA 4: MÚLTIPLAS & SISTEMAS -->
-    <section id="sec-sistemas" class="tab-content hidden space-y-6">
-      <div class="bg-slate-800/50 p-5 rounded-2xl border border-slate-700/60 shadow-xl space-y-4">
-        <h2 class="text-lg font-semibold text-slate-200">🎲 Apostas Múltiplas & Sistemas de Combinações</h2>
-        <p class="text-xs text-slate-400">Insira as odds dos seus jogos independentes para calcular o investimento, retorno potencial e cobertura do sistema.</p>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div class="space-y-3">
-            <h3 class="text-sm font-semibold text-slate-300">Jogos Selecionados (Odds)</h3>
-            <div id="system-inputs" class="space-y-2">
-              <div class="flex items-center gap-2">
-                <input type="text" value="Jogo A - Casa (1.80)" class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white">
-                <input type="number" step="0.05" value="1.80" class="sys-odd w-24 bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white text-center" oninput="calcularSistemas()">
-              </div>
-              <div class="flex items-center gap-2">
-                <input type="text" value="Jogo B - Over 2.5 (1.95)" class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white">
-                <input type="number" step="0.05" value="1.95" class="sys-odd w-24 bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white text-center" oninput="calcularSistemas()">
-              </div>
-              <div class="flex items-center gap-2">
-                <input type="text" value="Jogo C - BTTS (1.75)" class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white">
-                <input type="number" step="0.05" value="1.75" class="sys-odd w-24 bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white text-center" oninput="calcularSistemas()">
-              </div>
-            </div>
-            <div class="flex gap-2">
-              <button onclick="addSystemInput()" class="bg-slate-700 hover:bg-slate-600 text-xs text-slate-200 py-1.5 px-3 rounded-lg transition">+ Adicionar Seleção</button>
-              <button onclick="removeSystemInput()" class="bg-slate-700 hover:bg-slate-600 text-xs text-slate-200 py-1.5 px-3 rounded-lg transition">- Remover Seleção</button>
-            </div>
-
-            <div class="pt-2">
-              <label class="block text-xs text-slate-400 mb-1">Valor do Stake por Aposta (R$)</label>
-              <input type="number" id="sys-stake" value="10" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white" oninput="calcularSistemas()">
-            </div>
-          </div>
-
-          <div class="space-y-3 bg-slate-900/60 p-4 rounded-xl border border-slate-700/50">
-            <h3 class="text-sm font-semibold text-slate-300">Resumo do Sistema</h3>
-            <div id="systems-output" class="space-y-2 text-xs text-slate-300">
-              <!-- Resultados calculados dos sistemas -->
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ABA 5: CARTEIRA & MÉTRICAS -->
-    <section id="sec-carteira" class="tab-content hidden space-y-6">
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div class="bg-slate-800/50 p-5 rounded-2xl border border-slate-700/60 shadow-xl space-y-4">
-          <h2 class="text-lg font-semibold text-slate-200">📊 Métricas de Desempenho</h2>
-          
-          <div class="space-y-3 text-xs">
-            <div class="flex justify-between p-2.5 bg-slate-900/60 rounded-lg border border-slate-700/40">
-              <span class="text-slate-400">Total Apostas</span>
-              <span id="m-total" class="font-bold text-white">0</span>
-            </div>
-            <div class="flex justify-between p-2.5 bg-slate-900/60 rounded-lg border border-slate-700/40">
-              <span class="text-slate-400">Taxa de Acerto (Win Rate)</span>
-              <span id="m-winrate" class="font-bold text-emerald-400">0%</span>
-            </div>
-            <div class="flex justify-between p-2.5 bg-slate-900/60 rounded-lg border border-slate-700/40">
-              <span class="text-slate-400">Lucro / Prejuízo Líquido</span>
-              <span id="m-profit" class="font-bold text-emerald-400">R$ 0,00</span>
-            </div>
-            <div class="flex justify-between p-2.5 bg-slate-900/60 rounded-lg border border-slate-700/40">
-              <span class="text-slate-400">Brier Score (Calibração)</span>
-              <span id="m-brier" class="font-bold text-blue-400">0.000</span>
-            </div>
-            <div class="flex justify-between p-2.5 bg-slate-900/60 rounded-lg border border-slate-700/40">
-              <span class="text-slate-400">Log-Loss</span>
-              <span id="m-logloss" class="font-bold text-purple-400">0.000</span>
-            </div>
-          </div>
-
-          <div class="pt-2">
-            <button onclick="resetarCarteira()" class="w-full bg-rose-900/50 hover:bg-rose-800/80 text-rose-200 text-xs py-2 rounded-lg border border-rose-700/50 transition">Resetar Banca & Histórico</button>
-          </div>
-        </div>
-
-        <div class="lg:col-span-2 space-y-6">
-          <div class="bg-slate-800/50 p-5 rounded-2xl border border-slate-700/60 shadow-xl space-y-3">
-            <h2 class="text-lg font-semibold text-slate-200">📈 Curva de Evolução da Banca</h2>
-            <div class="h-48 w-full bg-slate-900/80 rounded-xl p-2 flex items-center justify-center border border-slate-700/50">
-              <svg id="chart-svg" class="w-full h-full text-blue-500" viewBox="0 0 500 150" preserveAspectRatio="none">
-                <!-- Gráfico de linha gerado via JS -->
-              </svg>
-            </div>
-          </div>
-
-          <div class="bg-slate-800/50 p-5 rounded-2xl border border-slate-700/60 shadow-xl space-y-3">
-            <h2 class="text-lg font-semibold text-slate-200">📜 Histórico de Transações</h2>
-            <div class="overflow-x-auto">
-              <table class="w-full text-left text-xs border-collapse">
-                <thead>
-                  <tr class="border-b border-slate-700 text-slate-400">
-                    <th class="p-2">Data</th>
-                    <th class="p-2">Aposta / Seleção</th>
-                    <th class="p-2 text-center">Odd</th>
-                    <th class="p-2 text-center">Stake</th>
-                    <th class="p-2 text-center">Resultado</th>
-                    <th class="p-2 text-right">Retorno</th>
-                  </tr>
-                </thead>
-                <tbody id="tx-table-body" class="divide-y divide-slate-800 text-slate-300">
-                  <!-- Transações inseridas via JS -->
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-  </main>
-
-  <footer class="bg-slate-900 border-t border-slate-800 py-4 text-center text-xs text-slate-500 mt-auto">
-    QuantFut Auto &copy; 2026 - Modelo de Análise Quantitativa e Gestão Financeira para Apostas Desportivas.
-  </footer>
-
-  <!-- Lógica da Aplicação -->
-  <script>
-    // Estado Global da Aplicação
-    const AppState = {
-      bancaInicial: 1000.0,
-      bancaAtual: 1000.0,
-      transacoes: [],
-      apiKey: localStorage.getItem('quantfut_apikey') || '',
-      cacheJogos: JSON.parse(localStorage.getItem('quantfut_cache') || '[]')
-    };
-
-    // Navegação entre Abas
-    function switchTab(tabId) {
-      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-      document.getElementById(`sec-${tabId}`).classList.remove('hidden');
-      document.getElementById(`tab-${tabId}`).classList.add('active');
-    }
-
-    // -------------------------------------------------------------
-    // MÓDULO 1: MODELO POISSON & DIXON-COLES
-    // -------------------------------------------------------------
-    function factorial(n) {
-      if (n === 0 || n === 1) return 1;
-      let res = 1;
-      for (let i = 2; i <= n; i++) res *= i;
-      return res;
-    }
-
-    function poisson(k, lambda) {
-      return (Math.pow(lambda, k) * Math.exp(-lambda)) / factorial(k);
-    }
-
-    function tauFactor(x, y, lambda, mu, rho) {
-      if (x === 0 && y === 0) return 1 - lambda * mu * rho;
-      if (x === 1 && y === 0) return 1 + mu * rho;
-      if (x === 0 && y === 1) return 1 + lambda * rho;
-      if (x === 1 && y === 1) return 1 - rho;
-      return 1;
-    }
-
-    function calcularPoisson() {
-      const homeName = document.getElementById('p-home-name').value || 'Casa';
-      const awayName = document.getElementById('p-away-name').value || 'Visitante';
-      const lambda = parseFloat(document.getElementById('p-xg-home').value) || 1.5;
-      const mu = parseFloat(document.getElementById('p-xg-away').value) || 1.2;
-      const rho = parseFloat(document.getElementById('p-tau').value) || 0.0;
-
-      document.getElementById('lbl-p-home').innerText = homeName;
-      document.getElementById('lbl-p-away').innerText = awayName;
-
-      let p1 = 0, px = 0, p2 = 0;
-      let pOver25 = 0, pUnder25 = 0;
-      let pBttsYes = 0, pBttsNo = 0;
-
-      const matrix = [];
-      const maxGoals = 5;
-
-      for (let i = 0; i <= maxGoals; i++) {
-        matrix[i] = [];
-        for (let j = 0; j <= maxGoals; j++) {
-          let prob = poisson(i, lambda) * poisson(j, mu) * tauFactor(i, j, lambda, mu, rho);
-          matrix[i][j] = prob;
-
-          if (i > j) p1 += prob;
-          else if (i === j) px += prob;
-          else p2 += prob;
-
-          if (i + j > 2.5) pOver25 += prob;
-          else pUnder25 += prob;
-
-          if (i > 0 && j > 0) pBttsYes += prob;
-          else pBttsNo += prob;
-        }
-      }
-
-      document.getElementById('prob-1').innerText = (p1 * 100).toFixed(1) + '%';
-      document.getElementById('fair-1').innerText = 'Odd: ' + (1 / p1).toFixed(2);
-
-      document.getElementById('prob-x').innerText = (px * 100).toFixed(1) + '%';
-      document.getElementById('fair-x').innerText = 'Odd: ' + (1 / px).toFixed(2);
-
-      document.getElementById('prob-2').innerText = (p2 * 100).toFixed(1) + '%';
-      document.getElementById('fair-2').innerText = 'Odd: ' + (1 / p2).toFixed(2);
-
-      document.getElementById('prob-o25').innerText = (pOver25 * 100).toFixed(1) + '%';
-      document.getElementById('fair-o25').innerText = 'Odd: ' + (1 / pOver25).toFixed(2);
-
-      document.getElementById('prob-u25').innerText = (pUnder25 * 100).toFixed(1) + '%';
-      document.getElementById('fair-u25').innerText = 'Odd: ' + (1 / pUnder25).toFixed(2);
-
-      document.getElementById('prob-btts-yes').innerText = (pBttsYes * 100).toFixed(1) + '%';
-      document.getElementById('fair-btts-yes').innerText = 'Odd: ' + (1 / pBttsYes).toFixed(2);
-
-      document.getElementById('prob-btts-no').innerText = (pBttsNo * 100).toFixed(1) + '%';
-      document.getElementById('fair-btts-no').innerText = 'Odd: ' + (1 / pBttsNo).toFixed(2);
-
-      let html = `<thead><tr class="bg-slate-900 text-slate-400"><th class="p-1">C \\ V</th>`;
-      for (let j = 0; j <= maxGoals; j++) html += `<th class="p-1">${j}</th>`;
-      html += `</tr></thead><tbody>`;
-
-      for (let i = 0; i <= maxGoals; i++) {
-        html += `<tr class="border-t border-slate-800"><td class="font-bold text-slate-400 bg-slate-900/50 p-1">${i}</td>`;
-        for (let j = 0; j <= maxGoals; j++) {
-          const val = (matrix[i][j] * 100).toFixed(1);
-          html += `<td class="p-1.5 hover:bg-slate-700/50 text-slate-300">${val}%</td>`;
-        }
-        html += `</tr>`;
-      }
-      html += `</tbody>`;
-      document.getElementById('matrix-table').innerHTML = html;
-    }
-
-    // -------------------------------------------------------------
-    // MÓDULO 2: BET BUILDER
-    // -------------------------------------------------------------
-    function oddBetBuilder(p, marginPercent = 8) {
-      if (p <= 0) return 1.0;
-      const fairOdd = 1 / p;
-      const margin = marginPercent / 100;
-      const adjustedOdd = fairOdd / (1 + margin);
-      return Math.max(1.01, Math.round(adjustedOdd * 100) / 100);
-    }
-
-    function montar(oddMin, oddMax) {
-      const checkboxes = Array.from(document.querySelectorAll('.bb-check:checked'));
-      if (checkboxes.length === 0) return null;
-
-      const items = checkboxes.map(cb => ({
-        id: cb.value,
-        nome: cb.dataset.name,
-        p: parseFloat(cb.dataset.prob)
-      }));
-
-      const combinations = [];
-      const n = items.length;
-      for (let i = 1; i < (1 << n); i++) {
-        const combo = [];
-        for (let j = 0; j < n; j++) {
-          if ((i >> j) & 1) combo.push(items[j]);
-        }
-        combinations.push(combo);
-      }
-
-      let melhor = null;
-      combinations.forEach(c => {
-        const product = c.reduce((acc, curr) => acc * curr.p, 1);
-        const correlationFactor = Math.pow(1.12, c.length - 1);
-        const p = Math.min(0.95, product * correlationFactor);
-        const nomes = c.map(item => item.nome);
-        const odd = oddBetBuilder(p);
-
-        if (odd >= oddMin && odd <= oddMax) {
-          if (!melhor || p > melhor.p) {
-            melhor = { linhas: c, nomes, p, odd, produto: product };
-          }
-        }
-      });
-      return melhor;
-    }
-
-    function executarMontagem() {
-      const oddMin = parseFloat(document.getElementById('bb-odd-min').value) || 1.5;
-      const oddMax = parseFloat(document.getElementById('bb-odd-max').value) || 5.0;
-
-      const res = montar(oddMin, oddMax);
-      const resDiv = document.getElementById('bb-result');
-
-      if (!res) {
-        resDiv.classList.remove('hidden');
-        document.getElementById('bb-result-lines').innerHTML = `<span class="text-rose-400">Nenhuma combinação encontrada na faixa de odds [${oddMin} - ${oddMax}]. Selecione mais opções ou ajuste as odds.</span>`;
-        document.getElementById('bb-res-p').innerText = '-';
-        document.getElementById('bb-res-odd').innerText = '-';
-        return;
-      }
-
-      resDiv.classList.remove('hidden');
-      document.getElementById('bb-result-lines').innerHTML = res.nomes.map(n => `<div>• ${n}</div>`).join('');
-      document.getElementById('bb-res-p').innerText = (res.p * 100).toFixed(1) + '%';
-      document.getElementById('bb-res-odd').innerText = res.odd.toFixed(2);
-      window.lastBetBuilder = res;
-    }
-
-    function adicionarBetBuilderACarteira() {
-      if (!window.lastBetBuilder) return;
-      const stake = 20.0;
-      const odd = window.lastBetBuilder.odd;
-      const win = Math.random() < window.lastBetBuilder.p;
-      const profit = win ? stake * (odd - 1) : -stake;
-
-      AppState.transacoes.push({
-        data: new Date().toLocaleDateString('pt-BR'),
-        nome: 'Bet Builder: ' + window.lastBetBuilder.nomes.join(' + '),
-        odd: odd,
-        stake: stake,
-        p: window.lastBetBuilder.p,
-        win: win,
-        profit: profit
-      });
-
-      AppState.bancaAtual += profit;
-      atualizarCarteiraUI();
-      alert(`Aposta simulada! Resultado: ${win ? 'GANHA (+' + profit.toFixed(2) + ')' : 'PERDIDA (-' + stake.toFixed(2) + ')'}`);
-    }
-
-    // -------------------------------------------------------------
-    // MÓDULO 3: MÚLTIPLAS & SISTEMAS
-    // -------------------------------------------------------------
-    function addSystemInput() {
-      const container = document.getElementById('system-inputs');
-      const count = container.children.length + 1;
-      const div = document.createElement('div');
-      div.className = 'flex items-center gap-2';
-      div.innerHTML = `
-        <input type="text" value="Jogo ${count} (2.00)" class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white">
-        <input type="number" step="0.05" value="2.00" class="sys-odd w-24 bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white text-center" oninput="calcularSistemas()">
-      `;
-      container.appendChild(div);
-      calcularSistemas();
-    }
-
-    function removeSystemInput() {
-      const container = document.getElementById('system-inputs');
-      if (container.children.length > 2) {
-        container.removeChild(container.lastChild);
-        calcularSistemas();
-      }
-    }
-
-    function getCombinations(arr, k) {
-      const results = [];
-      function helper(start, combo) {
-        if (combo.length === k) {
-          results.push(combo);
-          return;
-        }
-        for (let i = start; i < arr.length; i++) {
-          helper(i + 1, combo.concat([arr[i]]));
-        }
-      }
-      helper(0, []);
-      return results;
-    }
-
-    function calcularSistemas() {
-      const oddInputs = document.querySelectorAll('.sys-odd');
-      const odds = Array.from(oddInputs).map(i => parseFloat(i.value) || 1.0);
-      const stakePerBet = parseFloat(document.getElementById('sys-stake').value) || 10;
-      const n = odds.length;
-
-      let html = '';
-
-      const oddMulti = odds.reduce((a, b) => a * b, 1);
-      const retornoMulti = stakePerBet * oddMulti;
-      html += `<div class="p-2.5 bg-slate-800 rounded-lg border border-slate-700">
-        <div class="font-bold text-white">Aposta Múltipla (${n} Jogos)</div>
-        <div>Odd Total: <span class="text-emerald-400 font-bold">${oddMulti.toFixed(2)}</span></div>
-        <div>Custo Total: R$ ${stakePerBet.toFixed(2)} | Retorno Max: <span class="text-emerald-400">R$ ${retornoMulti.toFixed(2)}</span></div>
-      </div>`;
-
-      if (n === 3) {
-        const duplas = getCombinations(odds, 2);
-        const triplas = getCombinations(odds, 3);
-        const totalApostas = duplas.length + triplas.length;
-        const totalCost = totalApostas * stakePerBet;
-        
-        let maxRet = 0;
-        duplas.forEach(c => maxRet += stakePerBet * c[0] * c[1]);
-        triplas.forEach(c => maxRet += stakePerBet * c[0] * c[1] * c[2]);
-
-        html += `<div class="p-2.5 bg-slate-800 rounded-lg border border-slate-700 mt-2">
-          <div class="font-bold text-blue-400">Sistema Trixie (4 Apostas)</div>
-          <div class="text-[11px] text-slate-400">3 Duplas + 1 Tripla</div>
-          <div>Custo Total: R$ ${totalCost.toFixed(2)} | Retorno Max: <span class="text-emerald-400">R$ ${maxRet.toFixed(2)}</span></div>
-        </div>`;
-      }
-
-      if (n === 4) {
-        const duplas = getCombinations(odds, 2);
-        const triplas = getCombinations(odds, 3);
-        const quad = getCombinations(odds, 4);
-        const totalApostas = duplas.length + triplas.length + quad.length;
-        const totalCost = totalApostas * stakePerBet;
-
-        let maxRet = 0;
-        duplas.forEach(c => maxRet += stakePerBet * c[0] * c[1]);
-        triplas.forEach(c => maxRet += stakePerBet * c[0] * c[1] * c[2]);
-        quad.forEach(c => maxRet += stakePerBet * c[0] * c[1] * c[2] * c[3]);
-
-        html += `<div class="p-2.5 bg-slate-800 rounded-lg border border-slate-700 mt-2">
-          <div class="font-bold text-purple-400">Sistema Yankee (11 Apostas)</div>
-          <div class="text-[11px] text-slate-400">6 Duplas + 4 Triplas + 1 Quádrupla</div>
-          <div>Custo Total: R$ ${totalCost.toFixed(2)} | Retorno Max: <span class="text-emerald-400">R$ ${maxRet.toFixed(2)}</span></div>
-        </div>`;
-      }
-
-      document.getElementById('systems-output').innerHTML = html;
-    }
-
-    // -------------------------------------------------------------
-    // MÓDULO 4: API & DADOS MOCK
-    // -------------------------------------------------------------
-    function carregarJogosMock() {
-      const mockMatches = [
-        { home: 'Flamengo', away: 'Palmeiras', o1: 2.10, ox: 3.20, o2: 3.40, xgH: 1.75, xgA: 1.20 },
-        { home: 'Real Madrid', away: 'Barcelona', o1: 2.00, ox: 3.50, o2: 3.30, xgH: 1.85, xgA: 1.45 },
-        { home: 'Arsenal', away: 'Chelsea', o1: 1.75, ox: 3.60, o2: 4.50, xgH: 1.90, xgA: 1.00 }
-      ];
-      renderMatches(mockMatches);
-      document.getElementById('api-status').innerText = 'Status: Dados fictícios (Mock) carregados com sucesso.';
-    }
-
-    function renderMatches(matches) {
-      const container = document.getElementById('jogos-container');
-      container.innerHTML = matches.map((m, idx) => `
-        <div class="bg-slate-800/80 p-4 rounded-xl border border-slate-700/60 shadow hover:border-slate-500 transition space-y-3">
-          <div class="flex justify-between items-center text-xs font-semibold text-slate-400 border-b border-slate-700 pb-2">
-            <span>Partida #${idx + 1}</span>
-            <span class="text-blue-400">Ao Vivo / Próximo</span>
-          </div>
-          <div class="flex justify-between items-center text-sm font-bold text-white">
-            <span>${m.home}</span>
-            <span class="text-xs font-normal text-slate-400">vs</span>
-            <span>${m.away}</span>
-          </div>
-          <div class="grid grid-cols-3 gap-2 text-center text-xs">
-            <div class="bg-slate-900/80 p-2 rounded border border-slate-700">
-              <span class="text-slate-400 block">Casa</span>
-              <span class="font-bold text-emerald-400">${m.o1.toFixed(2)}</span>
-            </div>
-            <div class="bg-slate-900/80 p-2 rounded border border-slate-700">
-              <span class="text-slate-400 block">Empate</span>
-              <span class="font-bold text-amber-400">${m.ox.toFixed(2)}</span>
-            </div>
-            <div class="bg-slate-900/80 p-2 rounded border border-slate-700">
-              <span class="text-slate-400 block">Fora</span>
-              <span class="font-bold text-rose-400">${m.o2.toFixed(2)}</span>
-            </div>
-          </div>
-          <button onclick="carregarNoPoisson('${m.home}', '${m.away}', ${m.xgH}, ${m.xgA})" class="w-full bg-slate-700 hover:bg-slate-600 text-xs text-white py-1.5 rounded transition">Analisar no Modelo Poisson</button>
-        </div>
-      `).join('');
-    }
-
-    function carregarNoPoisson(home, away, xgH, xgA) {
-      document.getElementById('p-home-name').value = home;
-      document.getElementById('p-away-name').value = away;
-      document.getElementById('p-xg-home').value = xgH;
-      document.getElementById('p-xg-away').value = xgA;
-      switchTab('poisson');
-      calcularPoisson();
-    }
-
-    async function buscarOddsAPI() {
-      const apiKey = document.getElementById('api-key').value;
-      if (!apiKey) {
-        alert('Insira uma chave válida para The Odds API.');
-        return;
-      }
-      localStorage.setItem('quantfut_apikey', apiKey);
-      document.getElementById('api-status').innerText = 'Status: Consultando API...';
-
-      try {
-        const sport = document.getElementById('api-sport').value;
-        const res = await fetch(`https://api.the-odds-api.com/v4/sports/${sport}/odds/?apiKey=${apiKey}&regions=eu&markets=h2h`);
-        if (!res.ok) throw new Error('Falha na resposta da API.');
-        const data = await res.json();
-
-        const matches = data.slice(0, 6).map(item => {
-          const bookmaker = item.bookmakers[0];
-          const market = bookmaker ? bookmaker.markets.find(m => m.key === 'h2h') : null;
-          let o1 = 2.0, ox = 3.2, o2 = 3.0;
-          if (market) {
-            market.outcomes.forEach(out => {
-              if (out.name === item.home_team) o1 = out.price;
-              else if (out.name === item.away_team) o2 = out.price;
-              else ox = out.price;
-            });
-          }
-          return {
-            home: item.home_team,
-            away: item.away_team,
-            o1: o1, ox: ox, o2: o2,
-            xgH: (1.5 + Math.random() * 0.8).toFixed(2),
-            xgA: (1.0 + Math.random() * 0.6).toFixed(2)
-          };
-        });
-
-        renderMatches(matches);
-        document.getElementById('api-status').innerText = `Status: ${matches.length} partidas obtidas via API!`;
-      } catch (err) {
-        document.getElementById('api-status').innerText = 'Status: Erro ao consultar API. Carregando mock fallback.';
-        carregarJogosMock();
-      }
-    }
-
-    // -------------------------------------------------------------
-    // MÓDULO 5: CARTEIRA & MÉTRICAS (BRIER, LOG-LOSS, ROI)
-    // -------------------------------------------------------------
-    function atualizarCarteiraUI() {
-      const txs = AppState.transacoes;
-      const banca = AppState.bancaAtual;
-      const profitTotal = banca - AppState.bancaInicial;
-      const roi = ((profitTotal / AppState.bancaInicial) * 100).toFixed(2);
-
-      document.getElementById('header-banca').innerText = `R$ ${banca.toFixed(2)}`;
-      document.getElementById('header-roi').innerText = `${roi >= 0 ? '+' : ''}${roi}%`;
-      document.getElementById('header-roi').className = `text-lg font-bold ${roi >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
-
-      document.getElementById('m-total').innerText = txs.length;
-
-      if (txs.length === 0) {
-        document.getElementById('m-winrate').innerText = '0%';
-        document.getElementById('m-profit').innerText = 'R$ 0,00';
-        document.getElementById('m-brier').innerText = '0.000';
-        document.getElementById('m-logloss').innerText = '0.000';
-        return;
-      }
-
-      const wins = txs.filter(t => t.win).length;
-      const winRate = ((wins / txs.length) * 100).toFixed(1);
-      document.getElementById('m-winrate').innerText = `${winRate}%`;
-
-      document.getElementById('m-profit').innerText = `R$ ${profitTotal.toFixed(2)}`;
-      document.getElementById('m-profit').className = `font-bold ${profitTotal >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
-
-      let brierSum = 0;
-      let logLossSum = 0;
-
-      txs.forEach(t => {
-        const y = t.win ? 1 : 0;
-        const p = t.p || (1 / t.odd);
-        brierSum += Math.pow(p - y, 2);
-
-        const clampedP = Math.max(0.001, Math.min(0.999, p));
-        logLossSum += -(y * Math.log(clampedP) + (1 - y) * Math.log(1 - clampedP));
-      });
-
-      const brierScore = (brierSum / txs.length).toFixed(4);
-      const logLoss = (logLossSum / txs.length).toFixed(4);
-
-      document.getElementById('m-brier').innerText = brierScore;
-      document.getElementById('m-logloss').innerText = logLoss;
-
-      const tbody = document.getElementById('tx-table-body');
-      tbody.innerHTML = txs.map(t => `
-        <tr>
-          <td class="p-2">${t.data}</td>
-          <td class="p-2 font-medium">${t.nome}</td>
-          <td class="p-2 text-center">${t.odd.toFixed(2)}</td>
-          <td class="p-2 text-center">R$ ${t.stake.toFixed(2)}</td>
-          <td class="p-2 text-center">
-            <span class="px-2 py-0.5 rounded text-[10px] font-bold ${t.win ? 'bg-emerald-900/80 text-emerald-300' : 'bg-rose-900/80 text-rose-300'}">
-              ${t.win ? 'GANHA' : 'PERDIDA'}
-            </span>
-          </td>
-          <td class="p-2 text-right font-bold ${t.profit >= 0 ? 'text-emerald-400' : 'text-rose-400'}">
-            ${t.profit >= 0 ? '+' : ''}R$ ${t.profit.toFixed(2)}
-          </td>
-        </tr>
-      `).join('');
-
-      renderChart();
-    }
-
-    function renderChart() {
-      const svg = document.getElementById('chart-svg');
-      let history = [AppState.bancaInicial];
-      let acc = AppState.bancaInicial;
-
-      AppState.transacoes.forEach(t => {
-        acc += t.profit;
-        history.push(acc);
-      });
-
-      const min = Math.min(...history) * 0.95;
-      const max = Math.max(...history) * 1.05;
-      const width = 500;
-      const height = 150;
-
-      const points = history.map((val, idx) => {
-        const x = (idx / (history.length - 1 || 1)) * width;
-        const y = height - ((val - min) / (max - min || 1)) * height;
-        return `${x},${y}`;
-      }).join(' ');
-
-      svg.innerHTML = `
-        <polyline fill="none" stroke="#3b82f6" stroke-width="3" points="${points}" />
-      `;
-    }
-
-    function resetarCarteira() {
-      if (confirm('Deseja zerar todo o histórico de apostas e reiniciar a banca?')) {
-        AppState.bancaAtual = AppState.bancaInicial;
-        AppState.transacoes = [];
-        atualizarCarteiraUI();
-      }
-    }
-
-    // Inicializador
-    window.onload = function() {
-      calcularPoisson();
-      carregarJogosMock();
-      calcularSistemas();
-      atualizarCarteiraUI();
-    };
-  </script>
 </body>
 </html>
+
